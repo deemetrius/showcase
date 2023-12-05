@@ -4,17 +4,29 @@ export module script_caller;
 
 export namespace showcase {
 
-  template <typename String_type, typename Value_type>
-  struct callback_information
+  // params
+
+  template <typename String_type, typename Function_type>
+  struct is_script_params
   {
     using name_type = String_type;
-    using value_type = Value_type;
+    using function_type = Function_type;
+  };
 
-    name_type name;
-    value_type value;
+  // info: callback
+
+  template <typename Script_params>
+  struct callback_information
+  {
+    using params_type = Script_params;
+
+    typename params_type::name_type name;
+    typename params_type::function_type function;
 
     bool is_ready() const;
   };
+
+  // callback
 
   template <typename Info_type, typename Vm_type>
   struct callback

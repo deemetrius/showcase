@@ -6,19 +6,26 @@ import <string>;
 
 import script_caller;
 
+import <iostream>;
+
   // callback_information
 
-// data members: name, value
-using my_callback_info = showcase::callback_information<
+struct test_script_params
+  : public showcase::is_script_params
+  <
   std::string,
   std::optional<some_script::fn>
->;
+  >
+{};
+
+// data members: name, value
+using my_callback_info = showcase::callback_information<test_script_params>;
 
 // check: the function was found and is ready to be called
 template <>
 bool my_callback_info::is_ready() const
 {
-  return value.has_value();
+  return function.has_value();
 }
 
   // callback
@@ -33,13 +40,16 @@ using my_callback = showcase::callback<
 template <>
 void my_callback::find(param_type vm)
 {
+  std::cout << "\t" << this->name;
   try
   {
-    this->value = vm.find_function(this->name);
+    this->function = vm.find_function(this->name);
+    std::cout << " found\n";
   }
   catch( ... )
   {
-    this->value.reset();
+    this->function.reset();
+    std::cout << " ~ missing\n";
   }
 }
 
@@ -70,5 +80,6 @@ int main()
   some_script::vm vm;
   interface<my_callback> caller;
   
+  std::cout << "rescan started\n";
   caller.rescan(vm);
 }

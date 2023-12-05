@@ -1,6 +1,6 @@
 module;
 
-  /* place #include directives here */
+  /* #include directives goes here */
 
 export module test_engine;
 
@@ -11,9 +11,7 @@ export module test_engine;
   export import <string>; // export from imported module
 
 export namespace some_script {
-  // current namespace and its contents
-  // are visible for translation unit
-  // that imports this module
+  // ns & stuff ~ visible where this module is imported
 
   using index_t = std::ptrdiff_t;
 
@@ -22,12 +20,12 @@ export namespace some_script {
 
   using functions_map = std::map<text, index_t>;
   
-  //
+  // errors
 
   struct e_any {};
   struct e_not_found : public e_any {};
 
-  //
+  // function
 
   struct fn
   {
@@ -36,6 +34,8 @@ export namespace some_script {
 
     bool run() const { std::cout << this->name << "()\n"; }
   };
+
+  // Vm
 
   struct vm
   {
