@@ -1,45 +1,41 @@
 
+import test_engine; // script engine: some_script
+
+import <optional>;
+import <string_view>;
+
 import script_caller;
 
-export import <optional>;
-export import <string_view>;
+  // callback_information
 
-import <iostream>;
+// data members: name, value
+using my_callback_info = showcase::callback_information<
+  std::string_view,
+  std::optional<some_script::fn>
+>;
 
-// script engine
-
-struct some_vm {};
-struct some_fn {};
-
-// callback_information: name, value
-// is_ready()
-
-using my_callback_info = showcase::callback_information< std::string_view, std::optional<some_fn> >;
-
+// check: the function was found and is ready to be called
 template <>
 bool my_callback_info::is_ready() const
 {
   return value.has_value();
 }
 
-/*
-  callback
-    find()
-    operator ()
-*/
+  // callback
 
-using my_callback = showcase::callback<my_callback_info, some_vm>;
+// the layer around: callback_information
+using my_callback = showcase::callback<
+  my_callback_info,
+  some_script::vm
+>;
 
+// find function in loaded script
 template <>
 void my_callback::find(param_type vm)
 {
 }
 
-/*
-  interface
-    rescan()
-*/
-
+//
 template <typename Callback>
 struct interface
 {
@@ -48,21 +44,23 @@ struct interface
 
   callback_type
     on_paint{ "onPaint" },
-    on_load{ "onLoad" };
+    on_load{ "onLoad" },
+    on_error{ "onException" };
 
   void rescan(param_type vm)
   {
     on_paint.find(vm);
     on_load.find(vm);
+    on_error.find(vm);
   }
 };
 
+//
+
 int main()
 {
-  some_vm vm;
+  some_script::vm vm;
   interface<my_callback> caller;
   
   caller.rescan(vm);
-
-  std::cout << "Hello\n";
 }

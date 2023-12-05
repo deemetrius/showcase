@@ -21,5 +21,8 @@
     <ClCompile Include="src\script_caller.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\test_engine.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
