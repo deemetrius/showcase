@@ -1,1 +1,4 @@
-/cpp/_out*
+/cpp/.out*
+/cpp/.vs
+/cpp/**/*.user
+/**/*.bak
