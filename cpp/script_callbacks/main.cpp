@@ -2,7 +2,7 @@
 import test_engine; // script engine: some_script
 
 import <optional>;
-import <string_view>;
+import <string>;
 
 import script_caller;
 
@@ -10,7 +10,7 @@ import script_caller;
 
 // data members: name, value
 using my_callback_info = showcase::callback_information<
-  std::string_view,
+  std::string,
   std::optional<some_script::fn>
 >;
 
@@ -33,6 +33,14 @@ using my_callback = showcase::callback<
 template <>
 void my_callback::find(param_type vm)
 {
+  try
+  {
+    this->value = vm.find_function(this->name);
+  }
+  catch( ... )
+  {
+    this->value.reset();
+  }
 }
 
 //
@@ -43,9 +51,9 @@ struct interface
   using param_type = typename callback_type::param_type;
 
   callback_type
-    on_paint{ "onPaint" },
-    on_load{ "onLoad" },
-    on_error{ "onException" };
+    on_paint{ "app::onPaint" },
+    on_load { "app::onLoad" },
+    on_error{ "app::onException" };
 
   void rescan(param_type vm)
   {
