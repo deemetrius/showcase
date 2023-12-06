@@ -8,4 +8,5 @@
 <br>... следующие файлы:
 - _simplesquirrel.lib
 - _squirrel.lib
-... И поместите туда же папку с биндингом: simplesquirrel
+
+И поместите туда же папку с биндингом: simplesquirrel
