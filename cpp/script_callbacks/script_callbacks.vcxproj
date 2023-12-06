@@ -126,16 +126,19 @@
       <EnableModules>true</EnableModules>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <AdditionalIncludeDirectories>$(SolutionDir)_libs\simplesquirrel\include;$(SolutionDir)_libs\simplesquirrel\libs\squirrel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)_libs\_squirrel.lib;$(SolutionDir)_libs\_simplesquirrel.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\connector_squirrel.ixx" />
     <ClCompile Include="src\script_caller.ixx" />
     <ClCompile Include="src\connector_test.ixx" />
     <ClCompile Include="src\test_script_engine.ixx" />

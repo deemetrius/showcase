@@ -2,31 +2,41 @@ module;
 
 export module script_caller;
 
+  import <utility>;
+
 export namespace script_caller {
 
-  // info: callback
-
   template <typename Script_params>
-  struct callback_information
+  struct callback
   {
     using params_type = Script_params;
 
-    typename params_type::name_type name;
-    typename params_type::function_type function;
+    using text_type = typename params_type::text_type;
 
-    bool is_ready() const;
-  };
+    using function_type = typename params_type::function_type;
+    using function_result_type = typename params_type::function_result_type;
 
-  // callback
+    using vm_pass_type = typename params_type::vm_pass_type;
 
-  template <typename Info_type, typename Vm_type>
-  struct callback
-    : public Info_type
-  {
-    using info_type = Info_type;
-    using param_type = Vm_type &;
+    text_type name;
+    function_type function;
 
-    void find(param_type vm);
+    bool find_in(vm_pass_type vm)
+    {
+      function = params_type::function_find(vm, name);
+      return is_ready();
+    }
+
+    bool is_ready() const
+    {
+      return params_type::function_is_ready(function);
+    }
+
+    template <typename ... Args>
+    function_result_type operator () (vm_pass_type vm, Args && ... args)
+    {
+      return params_type::function_call(function, vm, std::forward<Args>(args) ...);
+    }
   };
 
   // end ns

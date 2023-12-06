@@ -1,4 +1,5 @@
 /cpp/.out*
 /cpp/.vs
 /cpp/**/*.user
+/cpp/_libs
 /**/*.bak

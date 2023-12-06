@@ -4,6 +4,7 @@ module;
 
 export module test_script_engine;
 
+#if 0
   import <string_view>;
   import <map>;
   import <iostream>;
@@ -14,8 +15,8 @@ export namespace test_script_engine {
 
   using index_t = std::ptrdiff_t;
 
-  using text_view = std::string_view;
-  using text = std::string;
+  using text_view = std::wstring_view;
+  using text = std::wstring;
 
   using functions_map = std::map<text, index_t>;
   
@@ -31,7 +32,7 @@ export namespace test_script_engine {
     text_view name{};
     index_t index{};
 
-    bool run() const { std::cout << this->name << "()\n"; }
+    bool run() const { std::wcout << this->name << "()\n"; }
   };
 
   // Vm
@@ -41,8 +42,8 @@ export namespace test_script_engine {
     static inline functions_map
       map
     {
-      {"app::onLoad",   1},
-      {"app::onPaint",  2}
+      {L"onLoad",   1},
+      {L"onPaint",  2}
     };
 
     fn find_function(text name) const
@@ -60,3 +61,4 @@ export namespace test_script_engine {
 
   // end ns
 }
+#endif

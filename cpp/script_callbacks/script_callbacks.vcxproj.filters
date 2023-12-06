@@ -27,5 +27,8 @@
     <ClCompile Include="src\connector_test.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\connector_squirrel.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ module;
 
 export module connector_test;
 
+#if 0
 export import test_script_engine;
 
   export import <optional>;
@@ -13,20 +14,19 @@ export import test_script_engine;
 
 export namespace connector_test {
 
-  // callback_information
+  // callback
 
   struct script_params
   {
-    using name_type = std::string;
+    using text_type = std::wstring;
+
     using function_type = std::optional<test_script_engine::fn>;
+    using function_result_type = bool;
+
+    using vm_pass_type = test_script_engine::vm &;
   };
   
-  using callback_info = script_caller::callback_information<script_params>;
-
-  using callback = script_caller::callback<
-    callback_info,
-    test_script_engine::vm
-  >;
+  using callback = script_caller::callback<script_params>;
 
   // end ns
 }
@@ -34,15 +34,15 @@ export namespace connector_test {
 export namespace script_caller {
 
   template <>
-  bool connector_test::callback_info::is_ready() const
+  bool connector_test::callback::is_ready() const
   {
     return function.has_value();
   }
 
   template <>
-  void connector_test::callback::find(param_type vm)
+  void connector_test::callback::find_in(vm_pass_type vm)
   {
-    std::cout << "\t" << this->name;
+    std::wcout << "\t" << this->name;
     try
     {
       this->function = vm.find_function(this->name);
@@ -57,3 +57,4 @@ export namespace script_caller {
 
   // end ns
 }
+#endif
