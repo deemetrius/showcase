@@ -2,16 +2,15 @@ module;
 
   /* #include directives goes here */
 
-export module test_engine;
+export module test_script_engine;
 
   import <string_view>;
   import <map>;
-  import <iostream>; // import header like module
+  import <iostream>;
 
-  export import <string>; // export from imported module
+  export import <string>;
 
-export namespace some_script {
-  // ns & stuff ~ visible where this module is imported
+export namespace test_script_engine {
 
   using index_t = std::ptrdiff_t;
 

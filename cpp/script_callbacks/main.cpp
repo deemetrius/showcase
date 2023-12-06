@@ -1,59 +1,12 @@
+import connector_test;
 
-import test_engine; // script engine: some_script
+/*
+предполагаемый интерфейс вызова:
+* определяется один раз
+* не зависит от целевого скриптового движка
+- пока только find() колбэков в скрипте
+*/
 
-import <optional>;
-import <string>;
-
-import script_caller;
-
-import <iostream>;
-
-  // callback_information
-
-struct test_script_params
-  : public showcase::is_script_params
-  <
-  std::string,
-  std::optional<some_script::fn>
-  >
-{};
-
-// data members: name, value
-using my_callback_info = showcase::callback_information<test_script_params>;
-
-// check: the function was found and is ready to be called
-template <>
-bool my_callback_info::is_ready() const
-{
-  return function.has_value();
-}
-
-  // callback
-
-// the layer around: callback_information
-using my_callback = showcase::callback<
-  my_callback_info,
-  some_script::vm
->;
-
-// find function in loaded script
-template <>
-void my_callback::find(param_type vm)
-{
-  std::cout << "\t" << this->name;
-  try
-  {
-    this->function = vm.find_function(this->name);
-    std::cout << " found\n";
-  }
-  catch( ... )
-  {
-    this->function.reset();
-    std::cout << " ~ missing\n";
-  }
-}
-
-//
 template <typename Callback>
 struct interface
 {
@@ -73,13 +26,28 @@ struct interface
   }
 };
 
-//
+// entry
 
 int main()
 {
-  some_script::vm vm;
-  interface<my_callback> caller;
+  // подстановка конкретного коннектора в интерфейс вызова
+  interface<connector_test::callback> caller;
   
-  std::cout << "rescan started\n";
+  // виртуальная машина для тестирования
+  test_script_engine::vm vm;
+  
+  std::cout << "search for callbacks in script\n";
   caller.rescan(vm);
+
+  // interface<> ~ можно тиражировать для произвольных коннекторов
+  // к прочим скриптовым движкам
+  // через параметр шаблона 
+
+  //interface<connector_squirrel::callback> caller_sq;
 }
+
+/*
+планируется в дальнейшем:
+* подключить биндинг белки
+* добавить механизм вызова колбэков
+*/

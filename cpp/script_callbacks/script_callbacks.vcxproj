@@ -137,7 +137,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\script_caller.ixx" />
-    <ClCompile Include="src\test_engine.ixx" />
+    <ClCompile Include="src\connector_test.ixx" />
+    <ClCompile Include="src\test_script_engine.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

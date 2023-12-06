@@ -2,16 +2,7 @@ module;
 
 export module script_caller;
 
-export namespace showcase {
-
-  // params
-
-  template <typename String_type, typename Function_type>
-  struct is_script_params
-  {
-    using name_type = String_type;
-    using function_type = Function_type;
-  };
+export namespace script_caller {
 
   // info: callback
 
