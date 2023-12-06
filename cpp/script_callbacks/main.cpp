@@ -26,6 +26,20 @@ struct interface
     on_error.find_in(vm);
   }
 
+  int wrap_paint(vm_pass_type vm)
+  {
+    if( on_paint.is_ready() )
+    {
+      // prepare something
+
+      // and call fn
+      ssq::Object res = on_paint(vm, 1);
+
+      return res.toInt();
+    }
+    return -1;
+  }
+
   void check()
   {
     using namespace std::string_view_literals;
