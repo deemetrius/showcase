@@ -7,7 +7,7 @@ export module connector_squirrel;
   export import <optional>;
   export import script_caller;
 
-export namespace connector_scquirrel {
+export namespace connector_squirrel {
 
   struct script_params
   {

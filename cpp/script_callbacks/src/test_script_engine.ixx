@@ -2,7 +2,7 @@ module;
 
   /* #include directives goes here */
 
-export module test_script_engine;
+export module some_script_engine;
 
 #if 0
   import <string_view>;
