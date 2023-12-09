@@ -38,15 +38,35 @@ struct params
 
 namespace errors {
 
-  struct data_no_callback
+  struct with_message
+  {
+    params::text_type msg;
+  };
+
+  struct with_name
   {
     params::text_type name;
   };
 
+  struct with_type_info
+  {
+    ssq::Type type;
+    std::string name;
+  };
+
+  //
+
   struct is_error {};
 
   struct no_callback
-    : public data_no_callback
+    : public with_message
+    , public with_name
+    , public is_error
+  {};
+
+  struct type_not_supported
+    : public with_message
+    , public with_type_info
     , public is_error
   {};
 
@@ -147,7 +167,7 @@ struct callback
   {
     if( is_ready() == false )
     {
-      throw errors::no_callback{ name };
+      throw errors::no_callback{ L"Callback is not found", name };
     }
     return vm.callFunc(function.value(), argument->get(), std::forward<Args>(args) ...);
   }
@@ -175,6 +195,19 @@ struct interface
             this->rescan_in(var);
             break;
           }
+          case ssq::Type::INSTANCE : {
+            throw errors::type_not_supported{
+              L"Binding of class Instance is not supported yet",
+              object.getType(),
+              object.getTypeStr()
+            };
+          }
+          default:
+            throw errors::type_not_supported{
+              L"Can bind only Table type",
+              object.getType(),
+              object.getTypeStr()
+            };
         } // end switch
       }
     );
