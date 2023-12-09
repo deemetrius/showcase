@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "script_callbacks", "script_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plain_callbacks", "plain_callbacks\plain_callbacks.vcxproj", "{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json_parser_sq", "json_parser\json_parser_sq.vcxproj", "{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
@@ -16,6 +18,8 @@ Global
 		{C145E0CE-DD21-47C4-8F03-37497A7FB580}.Release|x64.Build.0 = Release|x64
 		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x64.ActiveCfg = Release|x64
 		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x64.Build.0 = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x64.ActiveCfg = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,69 +1,125 @@
 
 #include "include/connector_squirrel.hpp"
 
-void testing_squirrel_nuts()
-{
-  using namespace connector_squirrel;
+#include <array>
 
-  // .nut script
-  static ssq::sqstring file_body{ LR"(
+struct tester
+{
+  static inline ssq::sqstring file_body_base{
+    LR"raw(
 function onLoad()
 {
-  return 10;
+  return "onLoad()"
 }
-)" };
-  // .nut script also
-  static ssq::sqstring file_body_also{ LR"(
+
 function onPaint(n)
 {
-  return 20 + n;
+  return "onPaint(" + n.tostring() + ")"
 }
-)" };
+)raw" };
 
-  // vm
-  ssq::VM vm(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
-
-  // compile
-  ssq::Script script = vm.compileSource( file_body.c_str() );
-  ssq::Script script_also = vm.compileSource( file_body_also.c_str() );
-
-  // run compiled
-  vm.run(script);
-  vm.run(script_also);
-
-  // caller instance
-  interface caller;
-
-  // going to scan callbacks
-  std::cout << "Searching squirrel functions\n";
-  caller.rescan(vm);
-
-  // what was found?
-  interface::check(caller);
-
-  std::cout << "calling callbacks:\n";
-
-  // raise events
-  ssq::Object res1 = caller.on_load(vm);
-  ssq::Object res2 = caller.on_paint(vm, 1);
-
-  // print results
-  std::wcout << "\t" << caller.on_load.name << "() returns: " << res1.toInt() << "\n";
-  std::wcout << "\t" << caller.on_paint.name << "() returns: " << res2.toInt() << "\n";
-
-  try
+  static inline ssq::sqstring file_body_init{
+    LR"raw(
+pack <- {
+  value = 5
+  onLoad = function ()
   {
-    // absent event
-    ssq::Object res3 = caller.on_error(vm);
+    return "pack::onLoad()" + " value= " + this.value.tostring()
   }
-  catch( const std::bad_optional_access & )
-  {
-    // callback was not found
-    std::wcout << "\t" << caller.on_error.name << "() was not found\n";
-  }
-
-  // end testing fn
 }
+
+function pack::onPaint(n)
+{
+  return "pack::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
+}
+
+init_callbacks(pack)
+)raw" };
+
+  static void go()
+  {
+    using namespace connector_squirrel;
+
+    // vm
+    ssq::VM vm(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
+
+    // compile
+    ssq::Script script_base = vm.compileSource( file_body_base.c_str() );
+    ssq::Script script_init = vm.compileSource( file_body_init.c_str() );
+
+    // run compiled
+    vm.run(script_base);
+
+    // caller instance
+    interface caller;
+
+    caller.bind_as(L"init_callbacks", vm);
+
+    // going to scan callbacks
+    caller.rescan_in(vm);
+
+    // what was found?
+    check_found(caller);
+    check_calls(caller, vm);
+
+    //
+    std::cout << "\nGoing to rebind\n\n";
+    vm.run(script_init);
+
+    // what was found?
+    check_found(caller);
+    check_calls(caller, vm);
+
+    // end testing fn
+  }
+  
+  static void check_found(const connector_squirrel::interface & caller)
+  {
+    using namespace connector_squirrel;
+    using namespace std::string_view_literals;
+
+    std::array members{
+      & interface::on_load,
+      & interface::on_paint,
+      & interface::on_error
+    };
+
+    std::cout << "Searching squirrel functions\n";
+
+    for( auto it : members )
+    {
+      auto & m{ caller.*it };
+      std::wcout << '\t' << m.name << "() " << (m.is_ready() ? L"found"sv : L"missing"sv) << '\n';
+    }
+  }
+
+  static void check_calls(connector_squirrel::interface & caller, connector_squirrel::params::vm_pass_type vm)
+  {
+    using namespace connector_squirrel;
+
+    std::cout << "calling callbacks:\n";
+
+    // raise events
+    ssq::Object res;
+
+    try
+    {
+      res = caller.on_load(vm);
+      std::wcout << "\t" << caller.on_load.name << "() returns: " << res.toString() << "\n";
+
+      res = caller.on_paint(vm, 1);
+      std::wcout << "\t" << caller.on_paint.name << "() returns: " << res.toString() << "\n";
+
+      res = caller.on_error(vm);
+      std::wcout << "\t" << caller.on_error.name << "() returns: " << res.toString() << "\n";
+    }
+    catch( const errors::no_callback & e )
+    {
+      // callback was not found
+      std::wcout << "\t" << e.name << "() was not found\n";
+    }
+  }
+};
 
 // entry
 
@@ -71,7 +127,7 @@ int main()
 {
   try
   {
-    testing_squirrel_nuts();
+    tester::go();
   }
   catch( ... )
   {
