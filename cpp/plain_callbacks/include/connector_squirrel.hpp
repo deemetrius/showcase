@@ -59,6 +59,7 @@ struct string_cast_fn<std::string>
 
 } // end ns
 
+
 namespace connector_squirrel {
 
 struct is_arg
@@ -70,6 +71,8 @@ struct is_arg
 
 struct params
 {
+  using integer = decltype( std::declval<ssq::Object>().toInt() );
+
   using text_type = ssq::sqstring;
   using raw_text_type = const SQChar *;
 
@@ -190,63 +193,54 @@ struct callback
   }
 };
 
-// callback interface
+// interface base
 
-struct interface
+template <typename Derived>
+struct is_interface
 {
-  using integer = decltype( std::declval<ssq::Object>().toInt() );
-
-  callback
-    on_paint{ "onPaint" },
-    on_load { "onLoad" },
-    on_error{ "onException" };
+  Derived * derived()
+  {
+    return static_cast<Derived *>(this);
+  }
 
   void bind_as(params::raw_text_type name, params::vm_pass_type vm)
   {
+
     vm.addFunc(name,
-      [this](ssq::Object object){
+      [self = derived()](ssq::Object object) -> params::integer {
         switch( object.getType() )
         {
-          case ssq::Type::TABLE : {
-            ssq::Table var{ object };
-            this->rescan_in(var);
-            break;
-          }
-          case ssq::Type::INSTANCE : {
-            throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
-          }
-          default:
-            throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
-        } // end switch
+        case ssq::Type::TABLE : {
+          ssq::Table var{ object };
+          return self->rescan_in(var);
+        }
+        case ssq::Type::INSTANCE : {
+          return -1;
+          //throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
+        }
+        default:
+          return -1;
+          //throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
+        }
       }
     );
-  } // end fn
+
+  }
 
   template <typename Type>
-  void rescan_in(Type & param)
+  params::integer rescan_in(Type & param)
   {
     static_assert(aux::any_of_v<Type, ssq::VM, ssq::Table>);
 
-    on_paint.find_in(param);
-    on_load.find_in(param);
-    on_error.find_in(param);
-  }
+    params::integer count{ 0 };
 
-  integer wrap_paint(params::vm_pass_type vm);
+    for( callback Derived::* it : Derived::for_bind )
+    {
+      count += (derived()->*it).find_in(param);
+    }
+
+    return count;
+  }
 };
-
-inline interface::integer
-  interface::wrap_paint(params::vm_pass_type vm)
-{
-  if( on_paint.is_ready() )
-  {
-    // calculate params
-
-    ssq::Object res = on_paint(vm, 1);
-
-    return res.toInt();
-  }
-  return -1;
-}
 
 } // end ns

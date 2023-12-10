@@ -1,7 +1,37 @@
 
 #include "include/connector_squirrel.hpp"
 
-#include <array>
+// callback interface
+
+struct interface
+  : public connector_squirrel::is_interface<interface>
+{
+  connector_squirrel::callback
+    on_paint{ "onPaint" },
+    on_load { "onLoad" },
+    on_error{ "onException" };
+
+  // это необходимо определить для is_interface базы:
+  static inline std::vector<connector_squirrel::callback interface::*> for_bind{
+    & interface::on_paint,
+    & interface::on_load,
+    & interface::on_error
+  };
+
+  // функция - обёртка
+  connector_squirrel::params::integer wrap_paint(connector_squirrel::params::vm_pass_type vm)
+  {
+    if( on_paint.is_ready() )
+    {
+      // вычисление параметров
+
+      ssq::Object res = on_paint(vm, 1);
+
+      return res.toInt();
+    }
+    return -1;
+  }
+};
 
 struct tester
 {
@@ -33,7 +63,8 @@ function pack::onPaint(n)
   return "pack::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
 }
 
-init_callbacks(pack)
+local found_cnt = init_callbacks(pack)
+print( "found_cnt = " + found_cnt.tostring() + "\n" )
 )raw" };
 
   static void go()
@@ -73,33 +104,26 @@ init_callbacks(pack)
     // end testing fn
   }
   
-  static void check_found(const connector_squirrel::interface & caller)
+  static void check_found(const interface & caller)
   {
     using namespace connector_squirrel;
     using namespace std::string_view_literals;
 
-    std::array members{
-      & interface::on_load,
-      & interface::on_paint,
-      & interface::on_error
-    };
-
     std::cout << "Searching squirrel functions\n";
 
-    for( auto it : members )
+    for( auto it : interface::for_bind )
     {
-      auto & m{ caller.*it };
-      std::wcout << '\t' << m.name << "() " << (m.is_ready() ? L"found"sv : L"missing"sv) << '\n';
+      auto & method{ caller.*it };
+      std::wcout << '\t' << method.name << "() " << (method.is_ready() ? L"found"sv : L"missing"sv) << '\n';
     }
   }
 
-  static void check_calls(connector_squirrel::interface & caller, connector_squirrel::params::vm_pass_type vm)
+  static void check_calls(interface & caller, connector_squirrel::params::vm_pass_type vm)
   {
     using namespace connector_squirrel;
 
     std::cout << "calling callbacks:\n";
 
-    // raise events
     ssq::Object res;
 
     try
