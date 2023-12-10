@@ -113,10 +113,10 @@ init_callbacks(pack)
       res = caller.on_error(vm);
       std::wcout << "\t" << caller.on_error.name << "() returns: " << res.toString() << "\n";
     }
-    catch( const errors::no_callback & e )
+    catch( const ssq::NotFoundException & e )
     {
       // callback was not found
-      std::wcout << "\t" << e.name << "() was not found\n";
+      std::wcout << "\t" << e.what() << "()\n";
     }
   }
 };
@@ -125,6 +125,7 @@ init_callbacks(pack)
 
 int main()
 {
+  std::setlocale(LC_ALL, "rus");
   try
   {
     tester::go();

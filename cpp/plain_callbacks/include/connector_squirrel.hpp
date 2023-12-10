@@ -1,15 +1,61 @@
 
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include <simplesquirrel/simplesquirrel.hpp>
 
 #include <optional>
 #include <memory>
 #include <iostream>
 #include <type_traits>
+#include <cwchar>
 
 namespace aux {
 
 template <typename Type, typename ... Types>
 constexpr inline bool any_of_v = (std::is_same_v<Type, Types> || ...);
+
+// string convert
+
+template <typename Result>
+struct string_cast_fn;
+
+template <>
+struct string_cast_fn<std::wstring>
+{
+  std::wstring operator () (const std::string & str) const
+  {
+    std::mbstate_t state = std::mbstate_t();
+    const char * src = str.c_str();
+    std::size_t len = std::mbsrtowcs(nullptr, &src, 0, &state);
+    std::wstring ret{ len, L'\0', std::allocator<wchar_t>{} };
+    std::mbsrtowcs(&ret[0], &src, ret.size(), &state);
+    return ret;
+  }
+
+  std::wstring operator () (std::wstring str) const
+  {
+    return str;
+  }
+};
+
+template <>
+struct string_cast_fn<std::string>
+{
+  std::string operator () (const std::wstring & str) const
+  {
+    std::mbstate_t state = std::mbstate_t();
+    const wchar_t * src = str.c_str();
+    std::size_t len = std::wcsrtombs(nullptr, &src, 0, &state);
+    std::string ret{ len, '\0', std::allocator<char>{} };
+    std::wcsrtombs(&ret[0], &src, ret.size(), &state);
+    return ret;
+  }
+
+  std::string operator () (std::string str) const
+  {
+    return str;
+  }
+};
 
 } // end ns
 
@@ -34,43 +80,9 @@ struct params
   using table_pass_type = ssq::Table &;
 
   using arg_type = std::unique_ptr<is_arg>;
+
+  static inline aux::string_cast_fn<text_type> string_to_sq;
 };
-
-namespace errors {
-
-  struct with_message
-  {
-    params::text_type msg;
-  };
-
-  struct with_name
-  {
-    params::text_type name;
-  };
-
-  struct with_type_info
-  {
-    ssq::Type type;
-    std::string name;
-  };
-
-  //
-
-  struct is_error {};
-
-  struct no_callback
-    : public with_message
-    , public with_name
-    , public is_error
-  {};
-
-  struct type_not_supported
-    : public with_message
-    , public with_type_info
-    , public is_error
-  {};
-
-} // end ns
 
 // args
 
@@ -109,11 +121,16 @@ struct arg_object
 struct callback
 {
   // data
+  std::string name_plain;
+
   params::text_type name;
   params::function_type function;
   params::arg_type argument;
 
-  // todo: add constructor (ssq::Object)
+  callback(std::string p_name)
+    : name_plain{ p_name }
+    , name{ params::string_to_sq(name_plain) }
+  {}
 
   // methods
 
@@ -167,7 +184,7 @@ struct callback
   {
     if( is_ready() == false )
     {
-      throw errors::no_callback{ L"Callback is not found", name };
+      throw ssq::NotFoundException( name_plain.c_str() );
     }
     return vm.callFunc(function.value(), argument->get(), std::forward<Args>(args) ...);
   }
@@ -180,9 +197,9 @@ struct interface
   using integer = decltype( std::declval<ssq::Object>().toInt() );
 
   callback
-    on_paint{ L"onPaint" },
-    on_load { L"onLoad" },
-    on_error{ L"onException" };
+    on_paint{ "onPaint" },
+    on_load { "onLoad" },
+    on_error{ "onException" };
 
   void bind_as(params::raw_text_type name, params::vm_pass_type vm)
   {
@@ -196,18 +213,10 @@ struct interface
             break;
           }
           case ssq::Type::INSTANCE : {
-            throw errors::type_not_supported{
-              L"Binding of class Instance is not supported yet",
-              object.getType(),
-              object.getTypeStr()
-            };
+            throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
           }
           default:
-            throw errors::type_not_supported{
-              L"Can bind only Table type",
-              object.getType(),
-              object.getTypeStr()
-            };
+            throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
         } // end switch
       }
     );
