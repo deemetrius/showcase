@@ -33,6 +33,8 @@ struct interface
   }
 };
 
+// testing
+
 struct tester
 {
   static inline ssq::sqstring file_body_base{
@@ -52,6 +54,7 @@ function onPaint(n)
     LR"raw(
 pack <- {
   value = 5
+
   onLoad = function ()
   {
     return "pack::onLoad()" + " value= " + this.value.tostring()
@@ -63,45 +66,45 @@ function pack::onPaint(n)
   return "pack::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
 }
 
-local found_cnt = init_callbacks(pack)
-print( "found_cnt = " + found_cnt.tostring() + "\n" )
+
+print("passing callbacks")
+local found_cnt = api.init_callbacks(pack) // pass callbacks
+print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 )raw" };
 
   static void go()
   {
     using namespace connector_squirrel;
 
-    // vm
     ssq::VM vm(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
 
-    // compile
+
+    ssq::Table api_table = vm.addTable(L"api");
+    interface caller;
+    caller.bind_as(L"init_callbacks", api_table /* vm */);
+
+
     ssq::Script script_base = vm.compileSource( file_body_base.c_str() );
     ssq::Script script_init = vm.compileSource( file_body_init.c_str() );
 
-    // run compiled
+
     vm.run(script_base);
-
-    // caller instance
-    interface caller;
-
-    caller.bind_as(L"init_callbacks", vm);
-
-    // going to scan callbacks
     caller.rescan_in(vm);
 
-    // what was found?
+
     check_found(caller);
     check_calls(caller, vm);
 
-    //
+    
     std::cout << "\nGoing to rebind\n\n";
     vm.run(script_init);
 
-    // what was found?
+    
     check_found(caller);
     check_calls(caller, vm);
 
-    // end testing fn
+
+    // end go()
   }
   
   static void check_found(const interface & caller)

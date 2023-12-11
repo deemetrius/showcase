@@ -203,10 +203,13 @@ struct is_interface
     return static_cast<Derived *>(this);
   }
 
-  void bind_as(params::raw_text_type name, params::vm_pass_type vm)
+  template <typename Type>
+  void bind_as(params::raw_text_type name, Type & where)
   {
 
-    vm.addFunc(name,
+    static_assert( aux::any_of_v<Type, ssq::VM, ssq::Table>, "Should be ssq::Table or ssq::VM" );
+
+    where.addFunc(name,
       [self = derived()](ssq::Object object) -> params::integer {
         switch( object.getType() )
         {
