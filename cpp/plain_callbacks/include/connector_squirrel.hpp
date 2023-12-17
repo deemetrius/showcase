@@ -145,7 +145,7 @@ struct callback
       function = param.findFunc( name.c_str() );
       return true;
     }
-    catch( ... )
+    catch( const ssq::NotFoundException & )
     {
       function.reset();
       return false;
@@ -243,6 +243,22 @@ struct is_interface
     }
 
     return count;
+  }
+
+  void callbacks_change_argument(ssq::VM & vm)
+  {
+    for( callback Derived::* it : Derived::for_bind )
+    {
+      (derived()->*it).argument = std::make_unique<arg_vm>(& vm);
+    }
+  }
+
+  void callbacks_change_argument(ssq::Table & tb)
+  {
+    for( callback Derived::* it : Derived::for_bind )
+    {
+      (derived()->*it).argument = std::make_unique<arg_object>(& tb);
+    }
   }
 };
 

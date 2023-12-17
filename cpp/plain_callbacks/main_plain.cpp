@@ -1,7 +1,7 @@
 
 #include "include/connector_squirrel.hpp"
+#include <chrono>
 
-// callback interface
 
 struct interface
   : public connector_squirrel::is_interface<interface>
@@ -11,19 +11,19 @@ struct interface
     on_load { "onLoad" },
     on_error{ "onException" };
 
-  // это необходимо определить для is_interface базы:
   static inline std::vector<connector_squirrel::callback interface::*> for_bind{
     & interface::on_paint,
     & interface::on_load,
     & interface::on_error
   };
 
-  // функция - обёртка
   connector_squirrel::params::integer wrap_paint(connector_squirrel::params::vm_pass_type vm)
   {
+    // это пример функции - обёртки
+
     if( on_paint.is_ready() )
     {
-      // вычисление параметров
+      // допустим тут вычисление параметров
 
       ssq::Object res = on_paint(vm, 1);
 
@@ -33,7 +33,16 @@ struct interface
   }
 };
 
-// testing
+// returns milisec since day start
+connector_squirrel::params::integer get_ms()
+{
+  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+  auto ms = std::chrono::floor<std::chrono::milliseconds>(now);
+  auto day = std::chrono::floor<std::chrono::days>(now);
+  auto ret = ms - day;
+  return ret.count();
+}
+
 
 struct tester
 {
@@ -70,6 +79,7 @@ function pack::onPaint(n)
 print("passing callbacks")
 local found_cnt = api.init_callbacks(pack) // pass callbacks
 print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
+
 )raw" };
 
   static void go()
@@ -95,16 +105,16 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
     check_found(caller);
     check_calls(caller, vm);
 
-    
+
     std::cout << "\nGoing to rebind\n\n";
     vm.run(script_init);
+    //caller.callbacks_change_argument(vm); // test
 
-    
+
     check_found(caller);
     check_calls(caller, vm);
 
-
-    // end go()
+    // end fn
   }
   
   static void check_found(const interface & caller)
@@ -133,22 +143,34 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
     {
       res = caller.on_load(vm);
       std::wcout << "\t" << caller.on_load.name << "() returns: " << res.toString() << "\n";
+    }
+    catch( const ssq::NotFoundException & e )
+    {
+      std::wcout << "\t" << e.what() << "()\n";
+    }
 
+    try
+    {
       res = caller.on_paint(vm, 1);
       std::wcout << "\t" << caller.on_paint.name << "() returns: " << res.toString() << "\n";
+    }
+    catch( const ssq::NotFoundException & e )
+    {
+      std::wcout << "\t" << e.what() << "()\n";
+    }
 
+    try
+    {
       res = caller.on_error(vm);
       std::wcout << "\t" << caller.on_error.name << "() returns: " << res.toString() << "\n";
     }
     catch( const ssq::NotFoundException & e )
     {
-      // callback was not found
       std::wcout << "\t" << e.what() << "()\n";
     }
   }
 };
 
-// entry
 
 int main()
 {

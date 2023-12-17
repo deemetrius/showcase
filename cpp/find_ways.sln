@@ -3,23 +3,34 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "script_callbacks", "script_callbacks\script_callbacks.vcxproj", "{C145E0CE-DD21-47C4-8F03-37497A7FB580}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plain_callbacks", "plain_callbacks\plain_callbacks.vcxproj", "{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json_parser_sq", "json_parser\json_parser_sq.vcxproj", "{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C145E0CE-DD21-47C4-8F03-37497A7FB580}.Release|x64.ActiveCfg = Release|x64
-		{C145E0CE-DD21-47C4-8F03-37497A7FB580}.Release|x64.Build.0 = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Debug|x64.ActiveCfg = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Debug|x64.Build.0 = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Debug|x86.ActiveCfg = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Debug|x86.Build.0 = Release|x64
 		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x64.ActiveCfg = Release|x64
 		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x64.Build.0 = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x86.ActiveCfg = Release|x64
+		{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}.Release|x86.Build.0 = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Debug|x64.ActiveCfg = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Debug|x64.Build.0 = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Debug|x86.ActiveCfg = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Debug|x86.Build.0 = Release|x64
 		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x64.ActiveCfg = Release|x64
 		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x64.Build.0 = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x86.ActiveCfg = Release|x64
+		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
