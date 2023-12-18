@@ -86,8 +86,9 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
   {
     using namespace connector_squirrel;
 
-    ssq::VM vm(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
-
+    std::shared_ptr<ssq::VM> vm_ptr =
+      std::make_shared<ssq::VM>(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
+    ssq::VM & vm = *vm_ptr;
 
     ssq::Table api_table = vm.addTable(L"api");
     interface caller;
@@ -99,7 +100,7 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
 
     vm.run(script_base);
-    caller.rescan_in(vm);
+    caller.rescan_in(vm_ptr);
 
 
     check_found(caller);
@@ -108,7 +109,7 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
     std::cout << "\nGoing to rebind\n\n";
     vm.run(script_init);
-    //caller.callbacks_change_argument(vm); // test
+    //caller.callbacks_change_argument(vm_ptr); // test
 
 
     check_found(caller);

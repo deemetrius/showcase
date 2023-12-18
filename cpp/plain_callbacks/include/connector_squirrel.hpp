@@ -89,9 +89,31 @@ struct params
 
 // args
 
+struct arg_vm_ptr
+  : public is_arg
+{
+  std::weak_ptr<ssq::VM> ptr_weak;
+
+  arg_vm_ptr(std::weak_ptr<ssq::VM> ptr)
+    : ptr_weak{ ptr }
+  {}
+
+  const ssq::Object & get() override
+  {
+    if( ptr_weak.expired() )
+    {
+      throw ssq::Exception("VM pointer is empty");
+    }
+    std::shared_ptr<ssq::VM> ptr = ptr_weak.lock();
+    return *ptr;
+  }
+};
+
+/*
 struct arg_vm
   : public is_arg
 {
+  std::weak_ptr<ssq::VM> ptr;
   ssq::VM * handle;
 
   arg_vm(ssq::VM * vm_pointer)
@@ -103,6 +125,7 @@ struct arg_vm
     return *handle;
   }
 };
+*/
 
 struct arg_object
   : public is_arg
@@ -119,23 +142,22 @@ struct arg_object
   }
 };
 
-// callback
 
 struct callback
 {
-  // data
   std::string name_plain;
+
 
   params::text_type name;
   params::function_type function;
   params::arg_type argument;
+
 
   callback(std::string p_name)
     : name_plain{ p_name }
     , name{ params::string_to_sq(name_plain) }
   {}
 
-  // methods
 
   template <typename Type>
   bool inner_find_in(Type & param)
@@ -152,6 +174,19 @@ struct callback
     }
   }
 
+  bool find_in(std::shared_ptr<ssq::VM> param)
+  {
+    bool ret = inner_find_in(*param);
+
+    if( ret )
+    {
+      argument = std::make_unique<arg_vm_ptr>(param);
+    }
+
+    return ret;
+  }
+
+  /*
   bool find_in(params::vm_pass_type param)
   {
     bool ret = inner_find_in(param);
@@ -163,6 +198,7 @@ struct callback
 
     return ret;
   }
+  */
 
   bool find_in(params::table_pass_type param)
   {
@@ -182,8 +218,8 @@ struct callback
   }
 
   template <typename ... Args>
-  params::function_result_type
-    operator () (params::vm_pass_type vm, Args && ... args)
+  params::function_result_type operator ()
+    (params::vm_pass_type vm, Args && ... args)
   {
     if( is_ready() == false )
     {
@@ -206,8 +242,9 @@ struct is_interface
   template <typename Type>
   void bind_as(params::raw_text_type name, Type & where)
   {
-
-    static_assert( aux::any_of_v<Type, ssq::VM, ssq::Table>, "Should be ssq::Table or ssq::VM" );
+    static_assert( aux::any_of_v<Type, ssq::VM, ssq::Table>,
+      "bind_as() param should be: ssq::Table (or) ssq::VM"
+    );
 
     where.addFunc(name,
       [self = derived()](ssq::Object object) -> params::integer {
@@ -219,11 +256,9 @@ struct is_interface
         }
         case ssq::Type::INSTANCE : {
           return -1;
-          //throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
         }
         default:
           return -1;
-          //throw ssq::TypeException( "not supported", "Table", object.getTypeStr() );
         }
       }
     );
@@ -233,7 +268,7 @@ struct is_interface
   template <typename Type>
   params::integer rescan_in(Type & param)
   {
-    static_assert(aux::any_of_v<Type, ssq::VM, ssq::Table>);
+    static_assert(aux::any_of_v<Type, /*ssq::VM*/ std::shared_ptr<ssq::VM>, ssq::Table>);
 
     params::integer count{ 0 };
 
@@ -245,6 +280,15 @@ struct is_interface
     return count;
   }
 
+  void callbacks_change_argument(std::shared_ptr<ssq::VM> vm_ptr)
+  {
+    for( callback Derived::* it : Derived::for_bind )
+    {
+      (derived()->*it).argument = std::make_unique<arg_vm_ptr>(vm_ptr);
+    }
+  }
+
+  /*
   void callbacks_change_argument(ssq::VM & vm)
   {
     for( callback Derived::* it : Derived::for_bind )
@@ -252,6 +296,7 @@ struct is_interface
       (derived()->*it).argument = std::make_unique<arg_vm>(& vm);
     }
   }
+  */
 
   void callbacks_change_argument(ssq::Table & tb)
   {
