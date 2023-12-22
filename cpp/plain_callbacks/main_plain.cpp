@@ -82,6 +82,29 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
 )raw" };
 
+  static inline ssq::sqstring file_body_instance{
+    LR"raw(
+class something {
+  value = 15
+
+  onLoad = function ()
+  {
+    return "something::onLoad()" + " value= " + this.value.tostring()
+  }
+}
+
+function something::onPaint(n)
+{
+  return "something::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
+}
+
+
+print("passing callbacks")
+local found_cnt = api.init_callbacks( something() ) // pass callbacks
+print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
+
+)raw" };
+
   static void go(interface & caller)
   {
     using namespace connector_squirrel;
@@ -100,6 +123,7 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
     ssq::Script script_base = vm.compileSource( file_body_base.c_str() );
     ssq::Script script_init = vm.compileSource( file_body_init.c_str() );
+    ssq::Script script_some = vm.compileSource( file_body_instance.c_str() );
 
 
     vm.run(script_base);
@@ -113,6 +137,15 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
     std::cout << "\nGoing to rebind\n\n";
     vm.run(script_init);
+    //caller.callbacks_change_argument(vm_ptr); // test
+
+
+    check_found(caller);
+    check_calls(caller, vm);
+
+
+    std::cout << "\nRebind to instance\n\n";
+    vm.run(script_some);
     //caller.callbacks_change_argument(vm_ptr); // test
 
 

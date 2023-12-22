@@ -160,7 +160,7 @@ struct callback
 
 
   template <typename Type>
-  bool inner_find_in(Type & param)
+  bool inner_find_in(Type && param)
   {
     try
     {
@@ -203,6 +203,18 @@ struct callback
   bool find_in(params::table_pass_type param)
   {
     bool ret = inner_find_in(param);
+
+    if( ret )
+    {
+      argument = std::make_unique<arg_object>(& param);
+    }
+
+    return ret;
+  }
+
+  bool find_in(ssq::Instance & param)
+  {
+    bool ret = inner_find_in( param.getClass() );
 
     if( ret )
     {
@@ -261,7 +273,8 @@ struct is_interface
           return self->rescan_in(var);
         }
         case ssq::Type::INSTANCE : {
-          return -1;
+          ssq::Instance var{ object };
+          return self->rescan_in(var);
         }
         default:
           return -1;
@@ -274,7 +287,7 @@ struct is_interface
   template <typename Type>
   params::integer rescan_in(Type & param)
   {
-    static_assert(aux::any_of_v<Type, ssq::VM /*std::shared_ptr<ssq::VM>*/, ssq::Table>);
+    static_assert( aux::any_of_v<Type, ssq::VM /*std::shared_ptr<ssq::VM>*/, ssq::Table, ssq::Instance> );
 
     params::integer count{ 0 };
 
@@ -296,6 +309,7 @@ struct is_interface
   }
   */
 
+  /*
   void callbacks_change_argument(ssq::VM & vm)
   {
     for( callback Derived::* it : Derived::for_bind )
@@ -311,6 +325,7 @@ struct is_interface
       (derived()->*it).argument = std::make_unique<arg_object>(& tb);
     }
   }
+  */
 
   void reset()
   {
