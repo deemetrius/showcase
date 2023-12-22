@@ -82,16 +82,19 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
 )raw" };
 
-  static void go()
+  static void go(interface & caller)
   {
     using namespace connector_squirrel;
 
-    std::shared_ptr<ssq::VM> vm_ptr =
-      std::make_shared<ssq::VM>(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
-    ssq::VM & vm = *vm_ptr;
+    //std::shared_ptr<ssq::VM> vm_ptr =
+    //  std::make_shared<ssq::VM>(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
+    //ssq::VM & vm = *vm_ptr;
+    ssq::VM vm{ 1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH };
+
+    on_leave guard{ [&caller](){ caller.reset(); } };
 
     ssq::Table api_table = vm.addTable(L"api");
-    interface caller;
+    //interface caller;
     caller.bind_as(L"init_callbacks", api_table /* vm */);
 
 
@@ -100,7 +103,8 @@ print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
 
 
     vm.run(script_base);
-    caller.rescan_in(vm_ptr);
+    //caller.rescan_in(vm_ptr);
+    caller.rescan_in(vm);
 
 
     check_found(caller);
@@ -178,7 +182,10 @@ int main()
   std::setlocale(LC_ALL, "rus");
   try
   {
-    tester::go();
+    interface caller;
+    tester::go(caller);
+    std::cout << "\n * run again * \n\n";
+    tester::go(caller);
   }
   catch( ... )
   {

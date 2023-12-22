@@ -89,6 +89,7 @@ struct params
 
 // args
 
+/*
 struct arg_vm_ptr
   : public is_arg
 {
@@ -108,8 +109,8 @@ struct arg_vm_ptr
     return *ptr;
   }
 };
+*/
 
-/*
 struct arg_vm
   : public is_arg
 {
@@ -125,7 +126,6 @@ struct arg_vm
     return *handle;
   }
 };
-*/
 
 struct arg_object
   : public is_arg
@@ -174,6 +174,7 @@ struct callback
     }
   }
 
+  /*
   bool find_in(std::shared_ptr<ssq::VM> param)
   {
     bool ret = inner_find_in(*param);
@@ -185,8 +186,8 @@ struct callback
 
     return ret;
   }
+  */
 
-  /*
   bool find_in(params::vm_pass_type param)
   {
     bool ret = inner_find_in(param);
@@ -198,7 +199,6 @@ struct callback
 
     return ret;
   }
-  */
 
   bool find_in(params::table_pass_type param)
   {
@@ -226,6 +226,12 @@ struct callback
       throw ssq::NotFoundException( name_plain.c_str() );
     }
     return vm.callFunc(function.value(), argument->get(), std::forward<Args>(args) ...);
+  }
+
+  void reset()
+  {
+    function.reset();
+    argument.reset();
   }
 };
 
@@ -268,7 +274,7 @@ struct is_interface
   template <typename Type>
   params::integer rescan_in(Type & param)
   {
-    static_assert(aux::any_of_v<Type, /*ssq::VM*/ std::shared_ptr<ssq::VM>, ssq::Table>);
+    static_assert(aux::any_of_v<Type, ssq::VM /*std::shared_ptr<ssq::VM>*/, ssq::Table>);
 
     params::integer count{ 0 };
 
@@ -280,6 +286,7 @@ struct is_interface
     return count;
   }
 
+  /*
   void callbacks_change_argument(std::shared_ptr<ssq::VM> vm_ptr)
   {
     for( callback Derived::* it : Derived::for_bind )
@@ -287,8 +294,8 @@ struct is_interface
       (derived()->*it).argument = std::make_unique<arg_vm_ptr>(vm_ptr);
     }
   }
+  */
 
-  /*
   void callbacks_change_argument(ssq::VM & vm)
   {
     for( callback Derived::* it : Derived::for_bind )
@@ -296,7 +303,6 @@ struct is_interface
       (derived()->*it).argument = std::make_unique<arg_vm>(& vm);
     }
   }
-  */
 
   void callbacks_change_argument(ssq::Table & tb)
   {
@@ -304,6 +310,23 @@ struct is_interface
     {
       (derived()->*it).argument = std::make_unique<arg_object>(& tb);
     }
+  }
+
+  void reset()
+  {
+    for( callback Derived::* it : Derived::for_bind )
+    {
+      (derived()->*it).reset();
+    }
+  }
+};
+
+struct on_leave
+{
+  std::function<void ()> fn;
+  ~on_leave()
+  {
+    fn();
   }
 };
 
