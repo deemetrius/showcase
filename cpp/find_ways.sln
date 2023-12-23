@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plain_callbacks", "plain_ca
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json_parser_sq", "json_parser\json_parser_sq.vcxproj", "{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "font_loader", "font_loader\font_loader.vcxproj", "{9469D26D-7ADE-49AD-8C57-384E61513684}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x64.Build.0 = Release|x64
 		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x86.ActiveCfg = Release|x64
 		{C083E9E8-F4DE-484C-B63F-B1696F3EF2E8}.Release|x86.Build.0 = Release|x64
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Debug|x64.ActiveCfg = Debug|x64
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Debug|x64.Build.0 = Debug|x64
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Debug|x86.ActiveCfg = Debug|Win32
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Debug|x86.Build.0 = Debug|Win32
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Release|x64.ActiveCfg = Release|x64
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Release|x64.Build.0 = Release|x64
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Release|x86.ActiveCfg = Release|Win32
+		{9469D26D-7ADE-49AD-8C57-384E61513684}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
