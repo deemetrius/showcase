@@ -175,13 +175,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
 
-            HFONT hfont = CreateFont(
+            lib::closable_font hfont = CreateFont(
               48,0,0,0,
               FW_DONTCARE,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_OUTLINE_PRECIS,
               CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY, VARIABLE_PITCH,
               font_custom_name.c_str()
             );
-            HFONT hFontOriginal = (HFONT)SelectObject(hdc, hfont);
+            HFONT hFontOriginal = (HFONT)SelectObject(hdc, hfont.handle);
             SetTextColor(hdc, RGB(0,128,0));
             RECT rect;
             SetRect(&rect, 100, 200, 900, 800);
@@ -193,7 +193,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               -1,&rect, DT_NOCLIP
             );
             SelectObject(hdc, hFontOriginal);
-            DeleteObject(hfont);
 
             EndPaint(hWnd, &ps);
         }

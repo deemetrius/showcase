@@ -4,16 +4,16 @@ namespace lib {
 
   struct res_font
   {
-    closable_font res;
+    closable_font_res res;
     index_t font_index;
     index_t file_index;
     index_t count;
 
-    static void close_memory_loaded_font(closable_font::handle_type & handle)
+    /*static void close_memory_loaded_font(closable_font_res::handle_type & handle)
     {
       RemoveFontMemResourceEx(handle);
       handle = nullptr;
-    }
+    }*/
   };
 
   struct res_manager
@@ -64,7 +64,7 @@ namespace lib {
       font_index = fonts.size();
       fonts.emplace_back(
         res_font{
-          {static_cast<HFONT>(handle), &res_font::close_memory_loaded_font},
+          handle,
           file_index,
           fonts_count
         }

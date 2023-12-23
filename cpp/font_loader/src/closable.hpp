@@ -72,20 +72,30 @@ namespace lib {
   }
 
   using closable_file = closable<FILE *>;
-  using closable_font = closable<HANDLE>;
+  using closable_font = closable<HFONT>;
+  using closable_font_res = closable<HANDLE>;
 
   template <>
   inline void closable_file::close(handle_type & handle)
   {
+    if (handle == nullptr) { return; }
     fclose(handle);
     handle = nullptr;
   }
 
   template <>
-  inline void closable_font::close(handle_type & handle)
+  inline void closable_font::close(handle_type& handle)
   {
+    if (handle == nullptr) { return; }
     DeleteObject(handle);
-    //RemoveFontMemResourceEx(handle);
+    handle = nullptr;
+  }
+
+  template <>
+  inline void closable_font_res::close(handle_type & handle)
+  {
+    if (handle == nullptr) { return; }
+    RemoveFontMemResourceEx(handle);
     handle = nullptr;
   }
 
