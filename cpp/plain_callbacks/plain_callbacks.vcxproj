@@ -61,6 +61,10 @@
     <ClCompile Include="main_plain.cpp" />
     <ClCompile Include="include\connector_squirrel.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\interface.hpp" />
+    <ClInclude Include="include\interface_tester.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

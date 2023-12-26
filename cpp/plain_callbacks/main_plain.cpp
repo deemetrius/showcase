@@ -1,224 +1,113 @@
 
-#include "include/connector_squirrel.hpp"
-#include <chrono>
+//#include "include/connector_squirrel.hpp"
+//#include "include/interface.hpp"
+//#include <chrono>
+//#include "include/interface_tester.hpp"
 
+#include <simplesquirrel/simplesquirrel.hpp>
+#include <iostream>
 
-struct interface
-  : public connector_squirrel::is_interface<interface>
+struct wrap
 {
-  connector_squirrel::callback
-    on_paint{ "onPaint" },
-    on_load { "onLoad" },
-    on_error{ "onException" };
+  using integer = std::int64_t;
 
-  static inline std::vector<connector_squirrel::callback interface::*> for_bind{
-    & interface::on_paint,
-    & interface::on_load,
-    & interface::on_error
-  };
+  mutable integer index;
 
-  connector_squirrel::params::integer wrap_paint(connector_squirrel::params::vm_pass_type vm)
+  wrap(integer id)
+    : index{ id }
+  {}
+
+  wrap(const wrap & other)
+    : index{ std::exchange(other.index, -1) }
   {
-    // это пример функции - обёртки
-
-    if( on_paint.is_ready() )
-    {
-      // допустим тут вычисление параметров
-
-      ssq::Object res = on_paint(vm, 1);
-
-      return res.toInt();
-    }
-    return -1;
+    std::cout << "wrap copy: " << index << "\n";
   }
+
+  // not required
+  wrap(wrap && other)
+    : index{ std::exchange(other.index, -1) }
+  {
+    std::cout << "wrap move: " << index << "\n";
+  }
+
+  ~wrap()
+  {
+    std::cout << "~wrap index: " << index << "\n";
+  }
+
+  static wrap* make(integer index)
+  {
+    return new wrap{ index };
+  }
+
+  static ssq::Class expose(ssq::VM & vm)
+  {
+    ssq::Class cls = vm.addClass(L"wrap", &make, true);
+
+    cls.addVar(L"index", &wrap::index);
+
+    return cls;
+  }
+
 };
 
-// returns milisec since day start
-connector_squirrel::params::integer get_ms()
+wrap cpp_function(wrap::integer index)
 {
-  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-  auto ms = std::chrono::floor<std::chrono::milliseconds>(now);
-  auto day = std::chrono::floor<std::chrono::days>(now);
-  auto ret = ms - day;
-  return ret.count();
+  return wrap{ index };
 }
 
-
-struct tester
+wrap * cpp_function_ptr(wrap::integer index)
 {
-  static inline ssq::sqstring file_body_base{
-    LR"raw(
-function onLoad()
+  return new wrap{ index };
+}
+
+ssq::sqstring file_script = LR"(
+
+local var = wrap(1)
+slot <- var
+
+print( "var: " + var.index.tostring() )
+print( "slot: " + slot.index.tostring() )
+
+var = null
+
+function fn(param)
 {
-  return "onLoad()"
+  print( "param: " + param.index.tostring() )
+  //slot2 <- param
+  param.index += 10
+  param = null
 }
 
-function onPaint(n)
-{
-  return "onPaint(" + n.tostring() + ")"
-}
-)raw" };
+fn(slot)
+print( "slot: " + slot.index.tostring() )
 
-  static inline ssq::sqstring file_body_init{
-    LR"raw(
-pack <- {
-  value = 5
+slot = cpp_function(20)
+print( "slot: " + slot.index.tostring() )
+//slot = null
 
-  onLoad = function ()
-  {
-    return "pack::onLoad()" + " value= " + this.value.tostring()
-  }
-}
-
-function pack::onPaint(n)
-{
-  return "pack::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
-}
-
-
-print("passing callbacks")
-local found_cnt = api.init_callbacks(pack) // pass callbacks
-print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
-
-)raw" };
-
-  static inline ssq::sqstring file_body_instance{
-    LR"raw(
-class something {
-  value = 15
-
-  onLoad = function ()
-  {
-    return "something::onLoad()" + " value= " + this.value.tostring()
-  }
-}
-
-function something::onPaint(n)
-{
-  return "something::onPaint(" + n.tostring() + ")" + " value= " + this.value.tostring()
-}
-
-
-print("passing callbacks")
-local found_cnt = api.init_callbacks( something() ) // pass callbacks
-print( "count of found callbacks: " + found_cnt.tostring() + "\n" )
-
-)raw" };
-
-  static void go(interface & caller)
-  {
-    using namespace connector_squirrel;
-
-    //std::shared_ptr<ssq::VM> vm_ptr =
-    //  std::make_shared<ssq::VM>(1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH);
-    //ssq::VM & vm = *vm_ptr;
-    ssq::VM vm{ 1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH };
-
-    on_leave guard{ [&caller](){ caller.reset(); } };
-
-    ssq::Table api_table = vm.addTable(L"api");
-    //interface caller;
-    caller.bind_as(L"init_callbacks", api_table /* vm */);
-
-
-    ssq::Script script_base = vm.compileSource( file_body_base.c_str() );
-    ssq::Script script_init = vm.compileSource( file_body_init.c_str() );
-    ssq::Script script_some = vm.compileSource( file_body_instance.c_str() );
-
-
-    vm.run(script_base);
-    //caller.rescan_in(vm_ptr);
-    caller.rescan_in(vm);
-
-
-    check_found(caller);
-    check_calls(caller, vm);
-
-
-    std::cout << "\nGoing to rebind\n\n";
-    vm.run(script_init);
-    //caller.callbacks_change_argument(vm_ptr); // test
-
-
-    check_found(caller);
-    check_calls(caller, vm);
-
-
-    std::cout << "\nRebind to instance\n\n";
-    vm.run(script_some);
-    //caller.callbacks_change_argument(vm_ptr); // test
-
-
-    check_found(caller);
-    check_calls(caller, vm);
-
-    // end fn
-  }
-  
-  static void check_found(const interface & caller)
-  {
-    using namespace connector_squirrel;
-    using namespace std::string_view_literals;
-
-    std::cout << "Searching squirrel functions\n";
-
-    for( auto it : interface::for_bind )
-    {
-      auto & method{ caller.*it };
-      std::wcout << '\t' << method.name << "() " << (method.is_ready() ? L"found"sv : L"missing"sv) << '\n';
-    }
-  }
-
-  static void check_calls(interface & caller, connector_squirrel::params::vm_pass_type vm)
-  {
-    using namespace connector_squirrel;
-
-    std::cout << "calling callbacks:\n";
-
-    ssq::Object res;
-
-    try
-    {
-      res = caller.on_load(vm);
-      std::wcout << "\t" << caller.on_load.name << "() returns: " << res.toString() << "\n";
-    }
-    catch( const ssq::NotFoundException & e )
-    {
-      std::wcout << "\t" << e.what() << "()\n";
-    }
-
-    try
-    {
-      res = caller.on_paint(vm, 1);
-      std::wcout << "\t" << caller.on_paint.name << "() returns: " << res.toString() << "\n";
-    }
-    catch( const ssq::NotFoundException & e )
-    {
-      std::wcout << "\t" << e.what() << "()\n";
-    }
-
-    try
-    {
-      res = caller.on_error(vm);
-      std::wcout << "\t" << caller.on_error.name << "() returns: " << res.toString() << "\n";
-    }
-    catch( const ssq::NotFoundException & e )
-    {
-      std::wcout << "\t" << e.what() << "()\n";
-    }
-  }
-};
-
+)";
 
 int main()
 {
   std::setlocale(LC_ALL, "rus");
   try
   {
-    interface caller;
-    tester::go(caller);
-    std::cout << "\n * run again * \n\n";
-    tester::go(caller);
+    //interface caller;
+    //tester::go(caller);
+    //std::cout << "\n * run again * \n\n";
+    //tester::go(caller);
+
+    ssq::VM vm{ 1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH };
+    wrap::expose(vm);
+    ssq::Function func = vm.addFunc(L"cpp_function", &cpp_function);
+    ssq::Function func_ptr = vm.addFunc(L"cpp_function_ptr", &cpp_function_ptr);
+
+    ssq::Script sf = vm.compileSource( file_script.c_str() );
+
+    vm.run(sf);
+
+    std::cout << "seems done\n";
   }
   catch( ... )
   {
