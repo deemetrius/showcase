@@ -13,6 +13,8 @@ namespace nut {
     using text = ssq::sqstring;
     using array = ssq::Array;
     using map = ssq::Table;
+
+    ssq::VM * vm_pointer{ nullptr };
   };
 
 }
