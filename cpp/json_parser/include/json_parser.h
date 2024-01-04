@@ -53,16 +53,16 @@ namespace parser::detail {
 
       void on_digit(index_t digit)
       {
-        if( dot > 1 )
+        if( dot < 0 )
+        {
+          before_dot *= radix;
+          before_dot += digit;
+        }
+        else
         {
           after_dot *= radix;
           after_dot += digit;
           dot *= radix;
-        }
-        else
-        {
-          before_dot *= radix;
-          before_dot += digit;
         }
       }
 
@@ -71,6 +71,7 @@ namespace parser::detail {
         if( dot > -1 )
         {
           resp.status = json_status::n_number_double_dot;
+          st.next_action = &parser_state::action_ask_parent;
           return;
         }
         dot = 1;
@@ -89,7 +90,7 @@ namespace parser::detail {
         }
         else
         {
-          st.next_action = parser_state::action_ask_parent;
+          st.next_action = &parser_state::action_ask_parent;
         }
       }
 
@@ -101,10 +102,11 @@ namespace parser::detail {
         }
         else
         {
-          typename Maker::floating ret{ static_cast<Maker::floating>(before_dot) };
+          typename Maker::floating part{ static_cast<Maker::floating>(before_dot) };
           typename Maker::floating frac{ static_cast<Maker::floating>(after_dot) };
           frac /= dot;
-          return st.maker_pointer->make_floating(is_negative ? -(ret + frac) : (ret + frac));
+          part += frac;
+          return st.maker_pointer->make_floating(is_negative ? -part : part);
         }
       }
     };
@@ -150,6 +152,9 @@ namespace parser {
         position.recognized(ch);
       }
     }
+    state_type::action_ask_parent(state, response, ch);
+    response.position = position.get();
+    std::cout << "parse done\n";
     return response;
   }
 

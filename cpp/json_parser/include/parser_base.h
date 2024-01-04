@@ -43,7 +43,7 @@ namespace parser::detail {
     {
       virtual void parse(parser_state & st, response_type & resp, Char ch) = 0;
       virtual result_type get_result(parser_state & st) = 0;
-      virtual void put_result(result_type && result) {}
+      virtual void put_result(result_type result) {}
     };
 
 
@@ -59,22 +59,24 @@ namespace parser::detail {
 
       static void action_up(parser_state & st, response_type & resp, Char & ch)
       {
-        result_type result = st.nodes.back()->get_result();
+        st.next_action = &parser_state::action_continue;
+        result_type result = st.nodes.back()->get_result(st);
         st.nodes.pop_back();
-        st.nodes.back()->put_result( std::move(result) );
+        st.nodes.back()->put_result(result);
         ch = st.reader->read_char();
       }
 
       static void action_ask_parent(parser_state & st, response_type & resp, Char & ch)
       {
+        st.next_action = &parser_state::action_continue;
         result_type result = st.nodes.back()->get_result(st);
         st.nodes.pop_back();
         if( st.nodes.empty() )
         {
-          resp.value = std::move(result);
+          resp.value = result;
           return;
         }
-        st.nodes.back()->put_result( std::move(result) );
+        st.nodes.back()->put_result(result);
       }
 
       using action_type = decltype( &action_continue );

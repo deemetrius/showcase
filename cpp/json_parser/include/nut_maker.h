@@ -17,16 +17,22 @@ namespace nut {
 
     ssq::VM * vm_pointer{ nullptr };
 
+    nut_maker(ssq::VM * p_vm)
+      : vm_pointer{ p_vm }
+    {}
+
     result_type make_integer(integer n) const
     {
-      array tmp(*vm_pointer);
+      std::cout << "int: " << n << '\n';
+      array tmp = vm_pointer->newArray();
       tmp.push(n);
       return tmp.back<ssq::Object>();
     }
 
     result_type make_floating(floating n) const
     {
-      array tmp(*vm_pointer);
+      std::cout << "float: " << n << '\n';
+      array tmp = vm_pointer->newArray();
       tmp.push(n);
       return tmp.back<ssq::Object>();
     }

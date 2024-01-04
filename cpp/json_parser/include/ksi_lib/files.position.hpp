@@ -58,11 +58,18 @@ namespace ksi::files {
     bool was_cr{false};
 
   public:
-    constexpr data_type const & operator -> ()
+    constexpr data_type const * operator -> ()
+    {
+      this->pos.update(line_info);
+      return &this->pos;
+    }
+
+    constexpr data_type get()
     {
       this->pos.update(line_info);
       return this->pos;
     }
+
 
   protected:
     constexpr void add_line()
