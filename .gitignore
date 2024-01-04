@@ -1,5 +1,6 @@
 /cpp/.out*
 /cpp/.vs
 /cpp/**/*.user
+/cpp/_hide
 /cpp/_libs
 /**/*.bak
