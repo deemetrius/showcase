@@ -1,4 +1,5 @@
 
+#include <optional>
 #include <string>
 #include <memory>
 #include <list>
@@ -17,7 +18,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   std::string json = "123";
   maker_type maker;
-  parser::json::from_string(maker, json);
+  parser::json<maker_type>::from_string(maker, json);
 
   return 0;
 }

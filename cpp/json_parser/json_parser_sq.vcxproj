@@ -66,6 +66,7 @@
     <ClInclude Include="include\ksi_lib\files.position.hpp" />
     <ClInclude Include="include\ksi_lib\lib.string_reader.hpp" />
     <ClInclude Include="include\nut_maker.h" />
+    <ClInclude Include="include\parser_base.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

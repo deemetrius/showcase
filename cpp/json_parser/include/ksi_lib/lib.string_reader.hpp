@@ -2,8 +2,15 @@
 
 namespace ksi::lib {
 
+  template <typename Char>
+  struct reader
+  {
+    virtual bool is_end() const = 0;
+    virtual Char read_char() = 0;
+  };
+
   template <typename String>
-  struct string_reader
+  struct string_reader : public reader<typename String::value_type>
   {
     using text = const String;
     using iterator = String::const_iterator;
@@ -13,12 +20,16 @@ namespace ksi::lib {
     text string;
     iterator it{string.cbegin()};
 
-    bool is_end() const
+    string_reader(text str)
+      : string(str)
+    {}
+
+    bool is_end() const override
     {
       return (string.cend() == it);
     }
 
-    char_type read_char()
+    char_type read_char() override
     {
       if( is_end() ) { return char_info::null; }
       char_type ret{*it};
