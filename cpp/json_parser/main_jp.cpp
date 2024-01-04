@@ -1,11 +1,13 @@
 
-#include <list>
 #include <string>
+#include <memory>
+#include <list>
 
 #include <simplesquirrel/simplesquirrel.hpp>
 
 #include "include/ksi_lib/chars.info.hpp"
 #include "include/ksi_lib/files.position.hpp"
+#include "include/ksi_lib/lib.string_reader.hpp"
 #include "include/nut_maker.h"
 #include "include/json_parser.h"
 

@@ -4,44 +4,41 @@ namespace parser {
 
   using index_t = std::ptrdiff_t;
 
-  template <typename String>
-  struct string_reader
-  {
-    using text = const String;
-    using iterator = String::const_iterator;
-    using char_type = String::value_type;
-    using char_info = ksi::chars::info<char_type>;
+  namespace detail {
 
-    text string;
-    iterator it{ string.cbegin() };
-
-    bool is_end() const
+    struct parser_base
     {
-      return (string.cend() == it);
-    }
 
-    char_type read_char()
+    };
+
+    struct parser_state
     {
-      if( is_end() ) { return char_info::null; }
-      char_type ret{ *it };
-      ++it;
-      return ret;
-    }
-  };
+      using state = std::unique_ptr<parser_base>;
+      using chain = std::list<state>;
+
+      chain nodes;
+    };
+
+  } // end ns
 
   struct json
   {
     template <typename Maker, typename String>
-    static typename Maker::result_type from_string(Maker const & maker, String source, index_t tab_size = 4)
+    static typename Maker::result_type
+      from_string(Maker const & maker, String source, index_t tab_size = 4)
     {
-      string_reader<String> reader{ source };
-      using char_type = decltype( reader.read_char() );
+      using reader_type = ksi::lib::string_reader<String>;
+      using char_type = decltype( std::declval<reader_type>().read_char() );
+
+      reader_type reader{ source };
       ksi::files::position position{ tab_size };
+
       while( reader.is_end() == false )
       {
         char_type ch = reader.read_char();
+        position.recognized(ch);
       }
-      typename Maker::result_type ret;
+      typename Maker::result_type ret{};
       return ret;
     }
   };

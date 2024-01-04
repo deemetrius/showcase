@@ -64,6 +64,7 @@
     <ClInclude Include="include\json_parser.h" />
     <ClInclude Include="include\ksi_lib\chars.info.hpp" />
     <ClInclude Include="include\ksi_lib\files.position.hpp" />
+    <ClInclude Include="include\ksi_lib\lib.string_reader.hpp" />
     <ClInclude Include="include\nut_maker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

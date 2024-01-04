@@ -105,7 +105,7 @@ namespace ksi::files {
     {}
 
     template <typename Char>
-    void on_char(Char ch)
+    void recognized(Char ch)
     {
       ++this->pos.char_pos;
       using info = ksi::chars::info<Char>;
