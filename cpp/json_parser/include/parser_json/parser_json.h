@@ -2,6 +2,7 @@
 
 #include "parser_base.h"
 #include "parser_json.nest.h"
+#include "parser_json.space.h"
 #include "parser_json.number.h"
 #include "parser_json.top.h"
 

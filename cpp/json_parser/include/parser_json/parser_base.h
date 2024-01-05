@@ -28,6 +28,7 @@ namespace parser::detail {
     using reader_type = std::unique_ptr< ksi::lib::reader<Char> >;
     using result_type = Maker::result_type;
     using response_type = parser_response<result_type>;
+    using pos_type = ksi::files::position::data_type;
 
 
     struct parser_state;
@@ -35,7 +36,8 @@ namespace parser::detail {
 
     struct node_base
     {
-      index_t start_char_pos{-1};
+      //index_t start_char_pos{-1};
+      pos_type start_pos{-1, 0, 0};
 
       virtual void parse(parser_state & st, response_type & resp, Char ch) = 0;
       virtual result_type get_result(parser_state & st) = 0;
@@ -56,6 +58,7 @@ namespace parser::detail {
 
       fn_condition condition{ &condition_false };
       fn_create create{ &create_none };
+      index_t type{1};
     };
 
 
@@ -95,6 +98,12 @@ namespace parser::detail {
         st.nodes.back()->put_result(result);
       }
 
+      static void action_ask_parent_no_value(parser_state & st, response_type & resp, Char & ch)
+      {
+        st.next_action = &parser_state::action_continue;
+        st.nodes.pop_back();
+      }
+
       static void action_exit(parser_state & st, response_type & resp, Char & ch)
       {
         st.nodes.clear();
@@ -103,7 +112,7 @@ namespace parser::detail {
       using action_type = decltype( &action_continue );
 
       Params const * params{ nullptr };
-      Maker const * maker_pointer{ nullptr };
+      Maker const * maker{ nullptr };
       chain nodes;
       reader_type reader;
       ksi::files::position position;
@@ -111,7 +120,7 @@ namespace parser::detail {
 
       parser_state(Maker const * p_maker, Params const * h_params)
         : params{ h_params }
-        , maker_pointer{ p_maker }
+        , maker{ p_maker }
         , position{ h_params->tab_size }
       {}
 
@@ -133,11 +142,10 @@ namespace parser::detail {
         ;
       }
 
-      //template <typename Node>
       void add_node(state node)
       {
-        //state node = std::make_unique<Node>();
-        node->start_char_pos = position->char_pos;
+        //node->start_char_pos = position->char_pos;
+        node->start_pos = position.get();
         nodes.push_back( std::move(node) );
       }
 

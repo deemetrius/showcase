@@ -3,6 +3,12 @@
 namespace parser {
 
 
+  struct unexpected_result
+  {
+    ksi::files::position::data_type pos{-1, 0, 0};
+  };
+
+
   struct json_status
   {
     enum status
@@ -42,10 +48,9 @@ namespace parser::detail {
     using state = nest::state;
 
 
+    class node_space;
     class node_number;
     class node_top;
-
-
   }; // end nest
 
 

@@ -19,7 +19,9 @@ namespace ksi::chars {
 
     , cr    = '\r'
     , lf    = '\n'
+    , space = ' '
     , tab   = '\t'
+
     , null  = '\0'
     ;
   };
@@ -38,7 +40,9 @@ namespace ksi::chars {
 
     , cr    = L'\r'
     , lf    = L'\n'
+    , space = L' '
     , tab   = L'\t'
+
     , null  = L'\0'
     ;
   };

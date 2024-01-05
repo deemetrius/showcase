@@ -69,6 +69,7 @@
     <ClInclude Include="include\parser_json\parser_base.h" />
     <ClInclude Include="include\parser_json\parser_json.nest.h" />
     <ClInclude Include="include\parser_json\parser_json.number.h" />
+    <ClInclude Include="include\parser_json\parser_json.space.h" />
     <ClInclude Include="include\parser_json\parser_json.top.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

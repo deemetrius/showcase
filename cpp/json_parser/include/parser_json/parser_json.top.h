@@ -8,8 +8,9 @@ namespace parser::detail {
     : public node_base
   {
   protected:
-    static constexpr std::array<choicer_type const *, 1> choicers{
-      &node_number::choicer
+    static constexpr std::array<choicer_type const *, 2> choicers{
+      &node_space::choicer
+    , &node_number::choicer
     };
 
     std::optional<result_type> value;
@@ -34,7 +35,7 @@ namespace parser::detail {
       {
         if( it->condition(st.params, ch) )
         {
-          ++count_tokens;
+          if( it->type > 0 ) { ++count_tokens; }
           st.add_node( it->create(st.params) );
           st.next_action = &parser_state::action_none;
           return;
@@ -49,7 +50,9 @@ namespace parser::detail {
       {
         return value.value();
       }
-      return st.maker_pointer->make_null();
+      return st.maker->make_null(
+        this->start_pos
+      );
     }
 
     void put_result(result_type result) override

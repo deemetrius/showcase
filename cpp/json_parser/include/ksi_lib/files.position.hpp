@@ -42,13 +42,6 @@ namespace ksi::files {
       index_t char_pos;
       index_t line;
       index_t column; // calcultated
-
-      // actions:
-
-      constexpr void update(inner_type from)
-      {
-        this->column = (from.total() + 1);
-      }
     };
 
   protected:
@@ -57,16 +50,21 @@ namespace ksi::files {
     data_type pos{0, 1, -1};
     bool was_cr{false};
 
+    constexpr void pos_update(inner_type from)
+    {
+      this->pos.column = (from.total() + 1);
+    }
+
   public:
     constexpr data_type const * operator -> ()
     {
-      this->pos.update(line_info);
+      this->pos_update(line_info);
       return &this->pos;
     }
 
     constexpr data_type get()
     {
-      this->pos.update(line_info);
+      this->pos_update(line_info);
       return this->pos;
     }
 

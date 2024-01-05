@@ -91,7 +91,7 @@ namespace parser::detail {
   public:
     void parse(parser_state & st, response_type & resp, Char ch) override
     {
-      if( st.position->char_pos == this->start_char_pos )
+      if( st.position->char_pos == this->start_pos.char_pos )
       {
         if( ch == info::plus )
         {
@@ -117,7 +117,7 @@ namespace parser::detail {
         return;
       }
       
-      // no matches
+      // not match
       st.next_action = &parser_state::action_ask_parent;
     }
 
@@ -125,23 +125,35 @@ namespace parser::detail {
     {
       if( is_float == false )
       {
-        return st.maker_pointer->make_integer((sign < 0) ? -before_dot : before_dot);
+        return st.maker->make_integer(
+          this->start_pos,
+          (sign < 0) ? -before_dot : before_dot
+        );
       }
       else
       {
         if( st.params->number.nan_only_dot && (count_digits == 0) && (sign == 0) )
         {
-          return st.maker_pointer->make_floating( std::numeric_limits<floating>::quiet_NaN() );
+          return st.maker->make_floating(
+            this->start_pos,
+            std::numeric_limits<floating>::quiet_NaN()
+          );
         }
         if( st.params->number.infinity_sign_dot && (count_digits == 0) && (sign != 0) )
         {
-          return st.maker_pointer->make_floating(std::numeric_limits<floating>::infinity() * sign);
+          return st.maker->make_floating(
+            this->start_pos,
+            std::numeric_limits<floating>::infinity() * sign
+          );
         }
         floating ret_part{part};
         floating ret_frac{static_cast<Maker::floating>(after_dot)};
         ret_frac /= dot;
         ret_part += ret_frac;
-        return st.maker_pointer->make_floating((sign < 0) ? -ret_part : ret_part);
+        return st.maker->make_floating(
+          this->start_pos,
+          (sign < 0) ? -ret_part : ret_part
+        );
       }
     }
   };

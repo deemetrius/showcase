@@ -8,6 +8,12 @@ namespace nut {
   struct nut_maker
   {
     using result_type = ssq::Object;
+    using pos_type = ksi::files::position::data_type;
+
+    static void show(pos_type pos)
+    {
+      std::cout << "[line " << pos.line << "; column " << pos.column << "; char " << pos.char_pos << "] ";
+    }
 
     using integer = SQInteger;
     using floating = SQFloat;
@@ -21,23 +27,27 @@ namespace nut {
       : vm_pointer{ p_vm }
     {}
 
-    result_type make_null() const
+    result_type make_null(pos_type pos) const
     {
+      show(pos);
+      std::cout << "null\n";
       array tmp = vm_pointer->newArray();
       tmp.reset();
       return tmp;
     }
 
-    result_type make_integer(integer n) const
+    result_type make_integer(pos_type pos, integer n) const
     {
+      show(pos);
       std::cout << "int: " << n << '\n';
       array tmp = vm_pointer->newArray();
       tmp.push(n);
       return tmp.back<ssq::Object>();
     }
 
-    result_type make_floating(floating n) const
+    result_type make_floating(pos_type pos, floating n) const
     {
+      show(pos);
       std::cout << "float: " << n << '\n';
       array tmp = vm_pointer->newArray();
       tmp.push(n);
