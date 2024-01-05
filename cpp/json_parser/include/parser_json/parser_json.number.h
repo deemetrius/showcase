@@ -62,7 +62,6 @@ namespace parser::detail {
     {
       if( dot > -1 )
       {
-        resp.status = json_status::n_number_double_dot;
         st.next_action = &parser_state::action_ask_parent;
         return;
       }
@@ -111,9 +110,13 @@ namespace parser::detail {
       }
       else
       {
-        if( st.params->number_dot_nan && (count_digits == 0) && (sign == 0) )
+        if( st.params->number.nan_only_dot && (count_digits == 0) && (sign == 0) )
         {
           return st.maker_pointer->make_floating( std::numeric_limits<floating>::quiet_NaN() );
+        }
+        if( st.params->number.infinity_sign_dot && (count_digits == 0) && (sign != 0) )
+        {
+          return st.maker_pointer->make_floating(std::numeric_limits<floating>::infinity() * sign);
         }
         floating ret_part{part};
         floating ret_frac{static_cast<Maker::floating>(after_dot)};

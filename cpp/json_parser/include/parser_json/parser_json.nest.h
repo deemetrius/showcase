@@ -7,16 +7,21 @@ namespace parser {
   {
     enum status
     {
-      n_ok,
-      n_number_double_dot
+      n_ok = 0
     };
   };
 
 
   struct json_params
   {
+    struct number_params
+    {
+      bool nan_only_dot{false};
+      bool infinity_sign_dot{false};
+    };
+
     index_t tab_size{4};
-    bool number_dot_nan{false};
+    number_params number{};
   };
 
 
