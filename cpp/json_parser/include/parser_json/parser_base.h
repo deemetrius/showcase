@@ -22,7 +22,7 @@ namespace parser {
 namespace parser::detail {
 
 
-  template <typename Char, typename Maker>
+  template <typename Char, typename Maker, typename Params>
   struct nest_base
   {
     using reader_type = std::unique_ptr< ksi::lib::reader<Char> >;
@@ -77,15 +77,17 @@ namespace parser::detail {
 
       using action_type = decltype( &action_continue );
 
+      Params const * params{ nullptr };
       Maker const * maker_pointer{ nullptr };
       chain nodes;
       reader_type reader;
       ksi::files::position position;
       action_type next_action{ &action_continue };
 
-      parser_state(Maker const * p_maker, index_t tab_size)
-        : maker_pointer{ p_maker }
-        , position{tab_size}
+      parser_state(Maker const * p_maker, Params const * h_params)
+        : params{ h_params }
+        , maker_pointer{ p_maker }
+        , position{ h_params->tab_size }
       {}
 
       void parse(response_type & resp, Char ch)

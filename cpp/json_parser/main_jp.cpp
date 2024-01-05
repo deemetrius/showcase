@@ -18,13 +18,16 @@ int main()
 {
   using text = std::string;
   using maker_type = nut::nut_maker<text>;
-  using parser = parser::json<maker_type>;
+  using parser_type = parser::json<maker_type>;
 
-  std::string json = "-512.1";
+  std::string json = ".";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
   maker_type maker{ &vm };
-  parser::response_type resp = parser::from_string(maker, json);
+
+  parser_type parser;
+  parser.params.number_dot_nan = true;
+  parser_type::response_type resp = parser.from_string(maker, json);
 
   std::cout << "src: " << json.size() << '\n';
   std::cout << "parsed: " << resp.position.char_pos << '\n';

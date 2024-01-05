@@ -14,22 +14,24 @@ namespace parser {
     using result_type = Maker::result_type;
     using response_type = parser_response<result_type>;
 
+    json_params params{};
+
     template <typename String>
-    static response_type from_string(Maker const & maker, String source, index_t tab_size = 4);
+    response_type from_string(Maker const & maker, String source);
   };
 
 
   template <typename Maker>
   template <typename String>
   inline json<Maker>::response_type
-    json<Maker>::from_string(Maker const & maker, String source, index_t tab_size)
+    json<Maker>::from_string(Maker const & maker, String source)
   {
     using reader_type = ksi::lib::string_reader<String>;
     using char_type = decltype( std::declval<reader_type>().read_char() );
-    using state_type = detail::nest_base<char_type, Maker>::parser_state;
+    using state_type = detail::nest_base<char_type, Maker, json_params>::parser_state;
     using nest = detail::nest_json<char_type, Maker>;
 
-    state_type state{ &maker, tab_size };
+    state_type state{ &maker, &this->params };
     state.reader = std::make_unique<reader_type>(source);
     state.add_node<nest::node_number>(); // node_top
     

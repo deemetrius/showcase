@@ -25,9 +25,11 @@ namespace parser::detail {
     integer sign{0};
     floating part{0.0};
     bool is_float = false;
+    index_t count_digits{ 0 };
 
     void on_digit(integer digit)
     {
+      ++count_digits;
       if( dot < 0 )
       {
         if(
@@ -103,12 +105,16 @@ namespace parser::detail {
 
     result_type get_result(parser_state & st) override
     {
-      if( /*dot < 0*/ is_float == false )
+      if( is_float == false )
       {
         return st.maker_pointer->make_integer((sign < 0) ? -before_dot : before_dot);
       }
       else
       {
+        if( (count_digits == 0) && (sign == 0) )
+        {
+          return st.maker_pointer->make_floating( std::numeric_limits<floating>::quiet_NaN() );
+        }
         floating ret_part{part};
         floating ret_frac{static_cast<Maker::floating>(after_dot)};
         ret_frac /= dot;
