@@ -43,10 +43,30 @@ namespace parser::detail {
     };
 
 
+    using state = std::unique_ptr<node_base>;
+
+
+    struct choicer
+    {
+      static bool condition_false(Params const *, Char) { return false; }
+      static state create_none(Params const *) { return {}; }
+
+      using fn_condition = decltype( &condition_false );
+      using fn_create = decltype( &create_none );
+
+      fn_condition condition{ &condition_false };
+      fn_create create{ &create_none };
+    };
+
+
     struct parser_state
     {
-      using state = std::unique_ptr<node_base>;
       using chain = std::list<state>;
+
+      static void action_none(parser_state & st, response_type & resp, Char & ch)
+      {
+        st.next_action = &parser_state::action_continue;
+      }
 
       static void action_continue(parser_state & st, response_type & resp, Char & ch)
       {
@@ -73,6 +93,11 @@ namespace parser::detail {
           return;
         }
         st.nodes.back()->put_result(result);
+      }
+
+      static void action_exit(parser_state & st, response_type & resp, Char & ch)
+      {
+        st.nodes.clear();
       }
 
       using action_type = decltype( &action_continue );
@@ -102,13 +127,16 @@ namespace parser::detail {
 
       bool is_recognized() const
       {
-        return (next_action != &action_ask_parent);
+        return
+           (next_action == &action_continue)
+        || (next_action == &action_up)
+        ;
       }
 
-      template <typename Node>
-      void add_node()
+      //template <typename Node>
+      void add_node(state node)
       {
-        state node = std::make_unique<Node>();
+        //state node = std::make_unique<Node>();
         node->start_char_pos = position->char_pos;
         nodes.push_back( std::move(node) );
       }

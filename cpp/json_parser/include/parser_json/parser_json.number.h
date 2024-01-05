@@ -8,9 +8,28 @@ namespace parser::detail {
     : public node_base
   {
   public:
+    static bool condition(json_params const * params, Char ch)
+    {
+      return
+        ksi::chars::is_digit(ch)
+        || (ch == info::minus)
+        || (ch == info::plus)
+        || (ch == info::dot)
+      ;
+    }
+
+    static state create(json_params const * params)
+    {
+      return std::make_unique<node_number>();
+    }
+
+    static constexpr choicer_type choicer{&condition, &create};
+
+
     using integer = Maker::integer;
     using floating = Maker::floating;
     using limits = std::numeric_limits<integer>;
+
 
     static constexpr integer
       radix{10}

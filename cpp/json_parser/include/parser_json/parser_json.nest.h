@@ -33,10 +33,13 @@ namespace parser::detail {
   struct nest_json
   {
     using result_type = Maker::result_type;
-    using parser_state = nest_base<Char, Maker, json_params>::parser_state;
-    using node_base = nest_base<Char, Maker, json_params>::node_base;
+    using nest = nest_base<Char, Maker, json_params>;
+    using parser_state = nest::parser_state;
+    using node_base = nest::node_base;
     using info = ksi::chars::info<Char>;
-    using response_type = nest_base<Char, Maker, json_params>::response_type;
+    using response_type = nest::response_type;
+    using choicer_type = nest::choicer;
+    using state = nest::state;
 
 
     class node_number;

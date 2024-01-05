@@ -21,6 +21,13 @@ namespace nut {
       : vm_pointer{ p_vm }
     {}
 
+    result_type make_null() const
+    {
+      array tmp = vm_pointer->newArray();
+      tmp.reset();
+      return tmp;
+    }
+
     result_type make_integer(integer n) const
     {
       std::cout << "int: " << n << '\n';

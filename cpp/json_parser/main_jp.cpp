@@ -1,6 +1,7 @@
 
 #include <optional>
 #include <string>
+#include <array>
 #include <memory>
 #include <list>
 #include <limits>
