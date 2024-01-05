@@ -53,10 +53,8 @@ namespace ksi::chars {
     );
   }
 
-  using index_t = std::ptrdiff_t;
-
-  template <typename Char>
-  index_t digit_of(Char ch)
+  template <typename Integer, typename Char>
+  Integer digit_of(Char ch)
   {
     using info_t = info<Char>;
     return (ch - info_t::zero);

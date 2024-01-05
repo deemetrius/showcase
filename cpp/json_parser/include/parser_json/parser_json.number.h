@@ -8,20 +8,45 @@ namespace parser::detail {
     : public node_base
   {
   public:
-    static constexpr index_t radix{10};
+    using integer = Maker::integer;
+    using floating = Maker::floating;
+    using limits = std::numeric_limits<integer>;
+
+    static constexpr integer
+      radix{10}
+    , max_pre{limits::max() / radix}
+    , max_last_digit{limits::max() % radix}
+    ;
 
   protected:
-    index_t before_dot{0};
-    index_t after_dot{0};
-    index_t dot{-1};
-    index_t sign{0};
+    integer before_dot{0};
+    integer after_dot{0};
+    integer dot{-1};
+    integer sign{0};
+    floating part{0.0};
+    bool is_float = false;
 
-    void on_digit(index_t digit)
+    void on_digit(integer digit)
     {
       if( dot < 0 )
       {
-        before_dot *= radix;
-        before_dot += digit;
+        if(
+          is_float == false && (
+            before_dot < max_pre || (
+              (before_dot == max_pre) && (digit <= max_last_digit)
+            )
+          )
+        ) {
+          before_dot *= radix;
+          before_dot += digit;
+          part = static_cast<floating>(before_dot);
+        }
+        else
+        {
+          is_float = true;
+          part *= radix;
+          part += digit;
+        }
       }
       else
       {
@@ -40,6 +65,7 @@ namespace parser::detail {
         return;
       }
       dot = 1;
+      is_float = true;
     }
 
   public:
@@ -61,7 +87,7 @@ namespace parser::detail {
 
       if( ksi::chars::is_digit(ch) )
       {
-        on_digit(ksi::chars::digit_of(ch));
+        on_digit(ksi::chars::digit_of<integer>(ch));
         return;
       }
 
@@ -77,17 +103,17 @@ namespace parser::detail {
 
     result_type get_result(parser_state & st) override
     {
-      if( dot < 0 )
+      if( /*dot < 0*/ is_float == false )
       {
         return st.maker_pointer->make_integer((sign < 0) ? -before_dot : before_dot);
       }
       else
       {
-        typename Maker::floating part{static_cast<Maker::floating>(before_dot)};
-        typename Maker::floating frac{static_cast<Maker::floating>(after_dot)};
-        frac /= dot;
-        part += frac;
-        return st.maker_pointer->make_floating((sign < 0) ? -part : part);
+        floating ret_part{part};
+        floating ret_frac{static_cast<Maker::floating>(after_dot)};
+        ret_frac /= dot;
+        ret_part += ret_frac;
+        return st.maker_pointer->make_floating((sign < 0) ? -ret_part : ret_part);
       }
     }
   };

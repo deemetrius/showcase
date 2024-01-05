@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <list>
+#include <limits>
 #include <iostream>
 
 #include <simplesquirrel/simplesquirrel.hpp>
@@ -19,7 +20,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser = parser::json<maker_type>;
 
-  std::string json = "-512";
+  std::string json = "-512.1";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
   maker_type maker{ &vm };
