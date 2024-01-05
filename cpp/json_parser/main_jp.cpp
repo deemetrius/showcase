@@ -26,7 +26,7 @@ int main()
   maker_type maker{ &vm };
 
   parser_type parser;
-  parser.params.number_dot_nan = true;
+  //parser.params.number_dot_nan = true;
   parser_type::response_type resp = parser.from_string(maker, json);
 
   std::cout << "src: " << json.size() << '\n';

@@ -111,7 +111,7 @@ namespace parser::detail {
       }
       else
       {
-        if( (count_digits == 0) && (sign == 0) )
+        if( st.params->number_dot_nan && (count_digits == 0) && (sign == 0) )
         {
           return st.maker_pointer->make_floating( std::numeric_limits<floating>::quiet_NaN() );
         }
