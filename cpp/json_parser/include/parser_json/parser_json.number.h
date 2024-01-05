@@ -14,7 +14,7 @@ namespace parser::detail {
     index_t before_dot{0};
     index_t after_dot{0};
     index_t dot{-1};
-    bool is_negative{false};
+    index_t sign{0};
 
     void on_digit(index_t digit)
     {
@@ -45,25 +45,41 @@ namespace parser::detail {
   public:
     void parse(parser_state & st, response_type & resp, Char ch) override
     {
+      if( st.position->char_pos == this->start_char_pos )
+      {
+        if( ch == info::plus )
+        {
+          sign = +1;
+          return;
+        }
+        if( ch == info::minus )
+        {
+          sign = -1;
+          return;
+        }
+      }
+
       if( ksi::chars::is_digit(ch) )
       {
         on_digit(ksi::chars::digit_of(ch));
+        return;
       }
-      else if( ch == info::dot )
+
+      if( ch == info::dot )
       {
         on_dot(st, resp, ch);
+        return;
       }
-      else
-      {
-        st.next_action = &parser_state::action_ask_parent;
-      }
+      
+      // no matches
+      st.next_action = &parser_state::action_ask_parent;
     }
 
     result_type get_result(parser_state & st) override
     {
       if( dot < 0 )
       {
-        return st.maker_pointer->make_integer(before_dot);
+        return st.maker_pointer->make_integer((sign < 0) ? -before_dot : before_dot);
       }
       else
       {
@@ -71,7 +87,7 @@ namespace parser::detail {
         typename Maker::floating frac{static_cast<Maker::floating>(after_dot)};
         frac /= dot;
         part += frac;
-        return st.maker_pointer->make_floating(is_negative ? -part : part);
+        return st.maker_pointer->make_floating((sign < 0) ? -part : part);
       }
     }
   };

@@ -5,27 +5,21 @@ namespace parser {
 
   using index_t = std::ptrdiff_t;
 
+
   template <typename Result>
   struct parser_response
   {
     using position_type = ksi::files::position::data_type;
 
     std::optional<Result> value;
-    index_t status;
-    position_type position;
+    index_t status{0};
+    position_type position{};
   };
+
 
 } // end ns
 
 namespace parser::detail {
-
-
-  enum class action
-  {
-    n_continue,
-    n_ask_parent,
-    n_end_node
-  };
 
 
   template <typename Char, typename Maker>
@@ -41,6 +35,8 @@ namespace parser::detail {
 
     struct node_base
     {
+      index_t start_char_pos{-1};
+
       virtual void parse(parser_state & st, response_type & resp, Char ch) = 0;
       virtual result_type get_result(parser_state & st) = 0;
       virtual void put_result(result_type result) {}
@@ -84,21 +80,40 @@ namespace parser::detail {
       Maker const * maker_pointer{ nullptr };
       chain nodes;
       reader_type reader;
+      ksi::files::position position;
       action_type next_action{ &action_continue };
 
-      parser_state(Maker const * p_maker)
+      parser_state(Maker const * p_maker, index_t tab_size)
         : maker_pointer{ p_maker }
+        , position{tab_size}
       {}
 
       void parse(response_type & resp, Char ch)
       {
         state & node = nodes.back();
         node->parse(*this, resp, ch);
+        if( is_recognized() )
+        {
+          position.recognized(ch);
+        }
       }
 
       bool is_recognized() const
       {
         return (next_action != &action_ask_parent);
+      }
+
+      template <typename Node>
+      void add_node()
+      {
+        state node = std::make_unique<Node>();
+        node->start_char_pos = position->char_pos;
+        nodes.push_back( std::move(node) );
+      }
+
+      bool empty() const
+      {
+        return nodes.empty();
       }
     };
 

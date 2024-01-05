@@ -29,25 +29,27 @@ namespace parser {
     using state_type = detail::nest_base<char_type, Maker>::parser_state;
     using nest = detail::nest_json<char_type, Maker>;
 
-    state_type state{ &maker };
+    state_type state{ &maker, tab_size };
     state.reader = std::make_unique<reader_type>(source);
-    state.nodes.push_back( std::make_unique<nest::node_number>() );
+    state.add_node<nest::node_number>(); // node_top
     
     response_type response;
-    ksi::files::position position{ tab_size };
     char_type ch{};
 
-    while( state.reader->is_end() == false )
+    for( ;; )
     {
-      state.next_action(state, response, ch);
-      state.parse(response, ch);
-      if( state.is_recognized() )
+      if( state.reader->is_end() )
       {
-        position.recognized(ch);
+        state_type::action_ask_parent(state, response, ch);
+        break;
       }
+      state.next_action(state, response, ch);
+
+      if( state.empty() ) { break; }
+      state.parse(response, ch);
     }
-    state_type::action_ask_parent(state, response, ch);
-    response.position = position.get();
+
+    response.position = state.position.get();
     return response;
   }
 
