@@ -11,13 +11,14 @@
 #include "include/ksi_lib/files.position.hpp"
 #include "include/ksi_lib/lib.string_reader.hpp"
 #include "include/nut_maker.h"
-#include "include/json_parser.h"
+#include "include/parser_json/parser_json.h"
 
 int main()
 {
   using text = std::string;
   using maker_type = nut::nut_maker<text>;
   using parser = parser::json<maker_type>;
+
   std::string json = "5.1231";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
