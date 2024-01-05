@@ -34,7 +34,9 @@ namespace parser {
 
     state_type state{ &maker, &this->params };
     state.reader = std::make_unique<reader_type>(source);
-    state.add_node( nest::node_top::create(state.params) ); // node_number
+    state.add_node(
+      nest::node_top::create( state.params, state.position.get() )
+    );
     
     response_type response;
     char_type ch{};

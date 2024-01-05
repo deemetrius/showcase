@@ -16,11 +16,12 @@ namespace parser::detail {
     std::optional<result_type> value;
     index_t count_tokens{0};
 
-  public:
+    using node_base::node_base;
 
-    static state create(json_params const * params)
+  public:
+    static state create(json_params const * params, pos_type pos)
     {
-      return std::make_unique<node_top>();
+      return std::make_unique<node_top>(pos);
     }
 
     void parse(parser_state & st, response_type & resp, Char ch) override
@@ -36,7 +37,9 @@ namespace parser::detail {
         if( it->condition(st.params, ch) )
         {
           if( it->type > 0 ) { ++count_tokens; }
-          st.add_node( it->create(st.params) );
+          st.add_node(
+            it->create( st.params, st.position.get() )
+          );
           st.next_action = &parser_state::action_none;
           return;
         }

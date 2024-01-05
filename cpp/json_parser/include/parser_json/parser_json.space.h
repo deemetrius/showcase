@@ -7,6 +7,9 @@ namespace parser::detail {
   class nest_json<Char, Maker>::node_space
     : public node_base
   {
+  protected:
+    using node_base::node_base;
+
   public:
     static bool condition(json_params const * params, Char ch)
     {
@@ -18,9 +21,9 @@ namespace parser::detail {
         ;
     }
 
-    static state create(json_params const * params)
+    static state create(json_params const * params, pos_type pos)
     {
-      return std::make_unique<node_space>();
+      return std::make_unique<node_space>(pos);
     }
 
     static constexpr choicer_type choicer{&condition, &create, 0};

@@ -18,9 +18,9 @@ namespace parser::detail {
       ;
     }
 
-    static state create(json_params const * params)
+    static state create(json_params const * params, pos_type start_pos)
     {
-      return std::make_unique<node_number>();
+      return std::make_unique<node_number>(start_pos);
     }
 
     static constexpr choicer_type choicer{&condition, &create};
@@ -45,6 +45,8 @@ namespace parser::detail {
     floating part{0.0};
     bool is_float = false;
     index_t count_digits{ 0 };
+
+    using node_base::node_base;
 
     void on_digit(integer digit)
     {

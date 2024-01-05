@@ -3,15 +3,9 @@
 namespace parser {
 
 
-  struct unexpected_result
+  struct json_status : public is_status
   {
-    ksi::files::position::data_type pos{-1, 0, 0};
-  };
-
-
-  struct json_status
-  {
-    enum status
+    enum status : index_t
     {
       n_ok = 0
     };
@@ -46,6 +40,7 @@ namespace parser::detail {
     using response_type = nest::response_type;
     using choicer_type = nest::choicer;
     using state = nest::state;
+    using pos_type = ksi::files::position::data_type;
 
 
     class node_space;

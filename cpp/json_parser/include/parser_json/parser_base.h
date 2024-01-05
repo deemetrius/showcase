@@ -6,6 +6,21 @@ namespace parser {
   using index_t = std::ptrdiff_t;
 
 
+  struct is_status
+  {
+    enum status_base : index_t
+    {
+      e_unexpected_symbol = -1
+    };
+  };
+
+
+  struct unexpected_result
+  {
+    ksi::files::position::data_type pos{-1, 0, 0};
+  };
+
+
   template <typename Result>
   struct parser_response
   {
@@ -36,11 +51,19 @@ namespace parser::detail {
 
     struct node_base
     {
-      //index_t start_char_pos{-1};
       pos_type start_pos{-1, 0, 0};
 
-      virtual void parse(parser_state & st, response_type & resp, Char ch) = 0;
-      virtual result_type get_result(parser_state & st) = 0;
+      node_base(pos_type pos)
+        : start_pos{ pos }
+      {}
+
+      virtual void parse(parser_state & st, response_type & resp, Char ch) {}
+
+      virtual result_type get_result(parser_state & st)
+      {
+        throw unexpected_result{ start_pos };
+      }
+
       virtual void put_result(result_type result) {}
     };
 
@@ -50,8 +73,11 @@ namespace parser::detail {
 
     struct choicer
     {
-      static bool condition_false(Params const *, Char) { return false; }
-      static state create_none(Params const *) { return {}; }
+      static bool condition_false(Params const * params, Char ch)
+      { return false; }
+
+      static state create_none(Params const * params, pos_type start_pos)
+      { return std::make_unique<node_base>(start_pos); }
 
       using fn_condition = decltype( &condition_false );
       using fn_create = decltype( &create_none );
@@ -93,6 +119,8 @@ namespace parser::detail {
         if( st.nodes.empty() )
         {
           resp.value = result;
+          resp.status = is_status::e_unexpected_symbol;
+          resp.position = st.position.get();
           return;
         }
         st.nodes.back()->put_result(result);
@@ -144,8 +172,6 @@ namespace parser::detail {
 
       void add_node(state node)
       {
-        //node->start_char_pos = position->char_pos;
-        node->start_pos = position.get();
         nodes.push_back( std::move(node) );
       }
 
