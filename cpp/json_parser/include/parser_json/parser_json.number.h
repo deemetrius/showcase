@@ -85,7 +85,7 @@ namespace parser::detail {
     {
       if( dot > -1 )
       {
-        st.next_action = &parser_state::action_up_result;
+        st.after_fn = &parser_state::action_up_result;
         return;
       }
       dot = 1;
@@ -123,7 +123,7 @@ namespace parser::detail {
       
       // not match
       st.skip_read();
-      st.next_action = &parser_state::action_up_result;
+      st.after_fn = &parser_state::action_up_result;
     }
 
     result_type get_result(parser_state & st) override

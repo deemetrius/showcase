@@ -36,7 +36,7 @@ namespace parser::detail {
       if( condition(st.params, ch) == false )
       {
         st.skip_read();
-        st.next_action = &parser_state::action_up_only;
+        st.after_fn = &parser_state::action_up_only;
       }
     }
 

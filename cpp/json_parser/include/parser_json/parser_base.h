@@ -112,7 +112,7 @@ namespace parser::detail {
 
       static void read_action_none(parser_state & st, Char & ch)
       {
-        st.next_read_action = &read_action;
+        st.read_fn = &read_action;
       }
 
       // post actions
@@ -122,19 +122,19 @@ namespace parser::detail {
 
       static void action_up_result(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_none;
+        st.after_fn = &parser_state::action_none;
         inner_result_up(st, resp);
       }
 
       static void action_up_only(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_none;
+        st.after_fn = &parser_state::action_none;
         st.nodes.pop_back();
       }
 
       static void action_unwind(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_none;
+        st.after_fn = &parser_state::action_none;
         while( st.nodes.empty() == false )
         {
           inner_result_up(st, resp);
@@ -143,7 +143,7 @@ namespace parser::detail {
 
       static void action_exit(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_none;
+        st.after_fn = &parser_state::action_none;
         st.nodes.clear();
       }
 
@@ -179,8 +179,8 @@ namespace parser::detail {
       chain nodes;
       reader_type reader;
       ksi::files::position position;
-      action_type next_action{ &action_none };
-      read_action_type next_read_action{ &read_action };
+      action_type after_fn{ &action_none };
+      read_action_type read_fn{ &read_action };
 
       // ctor
       parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params)
@@ -192,7 +192,7 @@ namespace parser::detail {
 
       void skip_read()
       {
-        next_read_action = &read_action_none;
+        read_fn = &read_action_none;
       }
 
       void parse(response_type & resp, Char ch)
@@ -203,9 +203,9 @@ namespace parser::detail {
         {
           position.recognized(ch);
         }
-        while( next_action != &action_none )
+        while( after_fn != &action_none )
         {
-          next_action(*this, resp);
+          after_fn(*this, resp);
         }
       }
 
@@ -219,7 +219,7 @@ namespace parser::detail {
             this->when_done(response);
             break;
           }
-          this->next_read_action(*this, ch);
+          this->read_fn(*this, ch);
 
           if( this->empty() ) { break; }
           this->parse(response, ch);
@@ -238,7 +238,7 @@ namespace parser::detail {
 
       bool is_recognized() const
       {
-        return (next_read_action == &read_action);
+        return (read_fn == &read_action);
       }
 
       void add_node(ptr_node node)

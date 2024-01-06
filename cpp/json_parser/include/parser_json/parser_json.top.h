@@ -28,7 +28,7 @@ namespace parser::detail {
     {
       if( count_tokens > 0 )
       {
-        st.next_action = &parser_state::action_exit;
+        st.after_fn = &parser_state::action_exit;
         return;
       }
       for( choicer_type const * it : choicers )
@@ -39,11 +39,11 @@ namespace parser::detail {
           st.add_node(
             it->create( st.maker, st.params, st.position.get() )
           );
-          st.next_action = &parser_state::action_none;
+          st.skip_read();
           return;
         }
       }
-      st.next_action = &parser_state::action_exit;
+      st.after_fn = &parser_state::action_exit;
       resp.status = json_status::e_unexpected_symbol;
     }
     
@@ -58,7 +58,7 @@ namespace parser::detail {
     void put_result(result_type result, parser_state & st, response_type & resp) override
     {
       resp.value = result;
-      st.next_action = &parser_state::action_exit;
+      st.after_fn = &parser_state::action_exit;
     }
   };
 

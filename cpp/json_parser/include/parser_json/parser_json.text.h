@@ -37,14 +37,14 @@ namespace parser::detail {
         if( ch != info::quote_double )
         {
           st.skip_read();
-          st.next_action = &parser_state::action_up_only;
+          st.after_fn = &parser_state::action_up_only;
         }
         return;
       }
 
       if( ch == info::quote_double )
       {
-        st.next_action = &parser_state::action_up_result;
+        st.after_fn = &parser_state::action_up_result;
         return;
       }
 
