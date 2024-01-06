@@ -23,7 +23,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  std::string json = R"(	"123 1")";
+  std::string json = R"(	"123\" 1")";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
   maker_type maker{ &vm };

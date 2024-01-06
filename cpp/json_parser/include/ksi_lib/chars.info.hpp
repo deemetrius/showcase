@@ -11,16 +11,25 @@ namespace ksi::chars {
     static constexpr char
       minus = '-'
     , plus  = '+'
+    , slash = '\\'
 
     , zero  = '0'
     , nine  = '9'
 
+    , letter_b = 'b'
+    , letter_f = 'f'
+    , letter_n = 'n'
+    , letter_r = 'r'
+    , letter_t = 't'
+
     , dot   = '.'
 
+    , ff    = '\f'
     , cr    = '\r'
     , lf    = '\n'
     , space = ' '
     , tab   = '\t'
+    , bs    = '\b'
 
     , null  = '\0'
 
@@ -41,16 +50,25 @@ namespace ksi::chars {
     static constexpr wchar_t
       minus = L'-'
     , plus  = L'+'
+    , slash = L'\\'
 
     , zero  = L'0'
     , nine  = L'9'
 
+    , letter_b = L'b'
+    , letter_f = L'f'
+    , letter_n = L'n'
+    , letter_r = L'r'
+    , letter_t = L't'
+
     , dot   = L'.'
 
+    , ff    = L'\f'
     , cr    = L'\r'
     , lf    = L'\n'
     , space = L' '
     , tab   = L'\t'
+    , bs    = L'\b'
 
     , null  = L'\0'
 

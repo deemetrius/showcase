@@ -27,8 +27,9 @@ namespace parser::detail {
     using stream_type = std::basic_stringstream<Char>;
 
     stream_type stream;
+    bool was_slash{ false };
 
-    using node_base::node_base;
+    using node_base::node_base; // base ctor
 
     void parse(parser_state & st, response_type & resp, Char ch) override
     {
@@ -42,13 +43,50 @@ namespace parser::detail {
         return;
       }
 
+      // escape sequences
+      // todo: \uFFFF
+      if( was_slash )
+      {
+        was_slash = false;
+        switch( ch )
+        {
+        case info::letter_f:
+          stream << info::ff;
+          return;
+
+        case info::letter_r:
+          stream << info::cr;
+          return;
+
+        case info::letter_n:
+          stream << info::lf;
+          return;
+
+        case info::letter_t:
+          stream << info::tab;
+          return;
+
+        case info::letter_b:
+          stream << info::bs;
+          return;
+
+        default:
+          stream << ch;
+          return;
+        }
+      }
+
       if( ch == info::quote_double )
       {
         st.after_fn = &parser_state::action_up_result;
         return;
       }
 
-      // todo: escape sequences
+      if( ch == info::slash )
+      {
+        was_slash = true;
+        return;
+      }
 
       stream << ch;
     }
