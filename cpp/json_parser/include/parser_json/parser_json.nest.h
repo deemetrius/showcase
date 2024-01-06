@@ -58,6 +58,9 @@ namespace parser::detail {
     class node_text;
     class node_map;
     class node_top;
+
+
+    static choicer_type const * find_from_all(json_params const * params, Char ch);
   }; // end nest
 
 

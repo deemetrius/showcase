@@ -12,6 +12,8 @@ namespace ksi::chars {
       minus = '-'
     , plus  = '+'
     , colon = ':'
+    , comma = ','
+    , dot   = '.'
     , slash = '\\'
 
     , zero  = '0'
@@ -22,8 +24,6 @@ namespace ksi::chars {
     , letter_n = 'n'
     , letter_r = 'r'
     , letter_t = 't'
-
-    , dot   = '.'
 
     , ff    = '\f'
     , cr    = '\r'
@@ -52,6 +52,8 @@ namespace ksi::chars {
       minus = L'-'
     , plus  = L'+'
     , colon = L':'
+    , comma = L','
+    , dot   = L'.'
     , slash = L'\\'
 
     , zero  = L'0'
@@ -62,8 +64,6 @@ namespace ksi::chars {
     , letter_n = L'n'
     , letter_r = L'r'
     , letter_t = L't'
-
-    , dot   = L'.'
 
     , ff    = L'\f'
     , cr    = L'\r'

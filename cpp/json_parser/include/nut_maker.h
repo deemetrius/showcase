@@ -72,8 +72,10 @@ namespace nut {
 
     void map_insert(map & mp, result_type key, result_type value)
     {
+      std::cout << "map insert: ";
       if( key.getType() != ssq::Type::STRING )
       {
+        std::cout << "wrong key\n";
         throw ssq::TypeException(
           "Wrong Table key type",
           "string",
@@ -81,6 +83,7 @@ namespace nut {
         );
       }
       text str_key = key.toString();
+      std::wcout << str_key << '\n';
       mp.set(str_key.c_str(), value);
     }
   };

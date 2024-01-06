@@ -85,6 +85,7 @@ namespace parser::detail {
     {
       if( dot > -1 )
       {
+        st.skip_read();
         st.after_fn = &parser_state::action_up_result;
         return;
       }
@@ -111,7 +112,7 @@ namespace parser::detail {
 
       if( ksi::chars::is_digit(ch) )
       {
-        on_digit(ksi::chars::digit_of<integer>(ch));
+        on_digit( ksi::chars::digit_of<integer>(ch) );
         return;
       }
 

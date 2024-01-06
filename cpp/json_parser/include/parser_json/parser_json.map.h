@@ -55,12 +55,15 @@ namespace parser::detail {
 
     void parse(parser_state & st, response_type & resp, Char ch) override
     {
+      if( node_space::condition(st.params, ch) )
+      {
+        return;
+      }
+
       if( (req & kind_open) != 0 )
       {
-        if( ch != info::bracket_open )
+        if( ch == info::brace_open )
         {
-          st.skip_read();
-          st.after_fn = &parser_state::action_up_only;
           req = was_open;
           return;
         }
@@ -68,7 +71,7 @@ namespace parser::detail {
 
       if( (req & kind_close) != 0 )
       {
-        if( ch == info::bracket_close )
+        if( ch == info::brace_close )
         {
           st.after_fn = &parser_state::action_up_result;
           req = was_close;
@@ -94,6 +97,32 @@ namespace parser::detail {
         }
       }
 
+      if( (req & kind_key) != 0 )
+      {
+        if( node_text::condition(st.params, ch) )
+        {
+          st.add_node(
+            node_text::create( st.maker, st.params, st.position.get() )
+          );
+          st.skip_read();
+          return;
+        }
+      }
+
+      if( (req & kind_value) != 0 )
+      {
+        choicer_type const * it = find_from_all(st.params, ch);
+        if( it != nullptr )
+        {
+          st.add_node(
+            it->create( st.maker, st.params, st.position.get() )
+          );
+          st.skip_read();
+          return;
+        }
+      }
+
+      st.after_fn = &parser_state::action_unwind;
       resp.change_status(json_status::n_map_unexpected_symbol);
     }
 
@@ -118,6 +147,7 @@ namespace parser::detail {
           throw json_error_map_key_empty{st.position.get()};
         }
         st.maker->map_insert(map, key.value(), result);
+        key.reset();
         req = was_value;
         return;
       }

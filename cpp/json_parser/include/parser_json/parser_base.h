@@ -98,10 +98,22 @@ namespace parser::detail {
       using fn_condition = decltype( &condition_false );
       using fn_create = decltype( &create_none );
 
+
       fn_name name{ &get_name };
       fn_condition condition{ &condition_false };
       fn_create create{ &create_none };
       index_t type{1};
+
+
+      template <typename Array>
+      static choicer const * find(Array const & array, Params const * params, Char ch)
+      {
+        for( choicer const * it : array )
+        {
+          if( it->condition(params, ch) ) { return it; }
+        }
+        return nullptr;
+      }
     };
 
 
@@ -111,14 +123,17 @@ namespace parser::detail {
 
       // read actions
 
-      static void read_action(parser_state & st, Char & ch)
+      static bool read_action(parser_state & st, Char & ch)
       {
+        if( st.reader->is_end() ) { return true; }
         ch = st.reader->read_char();
+        return false;
       }
 
-      static void read_action_none(parser_state & st, Char & ch)
+      static bool read_action_none(parser_state & st, Char & ch)
       {
         st.read_fn = &read_action;
+        return false;
       }
 
       // post actions
@@ -221,12 +236,11 @@ namespace parser::detail {
         Char ch{};
         for( ;; )
         {
-          if( this->reader->is_end() )
+          if( this->read_fn(*this, ch) )
           {
             this->when_done(response);
             break;
           }
-          this->read_fn(*this, ch);
 
           if( this->empty() ) { break; }
           this->parse(response, ch);
