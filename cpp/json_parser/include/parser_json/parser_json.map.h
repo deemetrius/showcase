@@ -14,7 +14,7 @@ namespace parser::detail {
       return (ch == info::brace_open);
     }
 
-    static state create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
     {
       return std::make_unique<node_map>(start_pos, maker);
     }

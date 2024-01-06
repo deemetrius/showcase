@@ -14,13 +14,12 @@ namespace parser::detail {
     , &node_text::choicer
     };
 
-    std::optional<result_type> value;
     index_t count_tokens{0};
 
     using node_base::node_base;
 
   public:
-    static state create(Maker * maker, json_params const * params, pos_type pos)
+    static ptr_node create(Maker * maker, json_params const * params, pos_type pos)
     {
       return std::make_unique<node_top>(pos);
     }
@@ -29,7 +28,6 @@ namespace parser::detail {
     {
       if( count_tokens > 0 )
       {
-        resp.value = value;
         st.next_action = &parser_state::action_exit;
         return;
       }
@@ -46,22 +44,21 @@ namespace parser::detail {
         }
       }
       st.next_action = &parser_state::action_exit;
+      resp.status = json_status::e_unexpected_symbol;
     }
     
     result_type get_result(parser_state & st) override
     {
-      if( value.has_value() )
-      {
-        return value.value();
-      }
+      throw skip_result{ this->start_pos };
       return st.maker->make_null(
         this->start_pos
       );
     }
 
-    void put_result(result_type result) override
+    void put_result(result_type result, parser_state & st, response_type & resp) override
     {
-      value = result;
+      resp.value = result;
+      st.next_action = &parser_state::action_exit;
     }
   };
 

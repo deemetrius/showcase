@@ -8,6 +8,8 @@ namespace parser::detail {
     : public node_base
   {
   public:
+    static std::string get_name() { return "t_number"; }
+
     static bool condition(json_params const * params, Char ch)
     {
       return
@@ -18,12 +20,12 @@ namespace parser::detail {
       ;
     }
 
-    static state create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
     {
       return std::make_unique<node_number>(start_pos);
     }
 
-    static constexpr choicer_type choicer{&condition, &create};
+    static constexpr choicer_type choicer{&get_name, &condition, &create};
 
 
     using integer = Maker::integer;
@@ -83,7 +85,7 @@ namespace parser::detail {
     {
       if( dot > -1 )
       {
-        st.next_action = &parser_state::action_ask_parent;
+        st.next_action = &parser_state::action_up_result;
         return;
       }
       dot = 1;
@@ -120,7 +122,8 @@ namespace parser::detail {
       }
       
       // not match
-      st.next_action = &parser_state::action_ask_parent;
+      st.skip_read();
+      st.next_action = &parser_state::action_up_result;
     }
 
     result_type get_result(parser_state & st) override

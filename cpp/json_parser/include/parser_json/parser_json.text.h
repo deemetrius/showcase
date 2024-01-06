@@ -8,17 +8,19 @@ namespace parser::detail {
     : public node_base
   {
   public:
+    static std::string get_name() { return "t_text"; }
+
     static bool condition(json_params const * params, Char ch)
     {
       return (ch == info::quote_double);
     }
 
-    static state create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
     {
       return std::make_unique<node_text>(start_pos);
     }
 
-    static constexpr choicer_type choicer{&condition, &create};
+    static constexpr choicer_type choicer{&get_name, &condition, &create};
 
 
     using text_type = Maker::text;
@@ -34,15 +36,15 @@ namespace parser::detail {
       {
         if( ch != info::quote_double )
         {
-          // not match
-          st.next_action = &parser_state::action_ask_parent_no_value;
+          st.skip_read();
+          st.next_action = &parser_state::action_up_only;
         }
         return;
       }
 
       if( ch == info::quote_double )
       {
-        st.next_action = &parser_state::action_up;
+        st.next_action = &parser_state::action_up_result;
         return;
       }
 
@@ -57,6 +59,14 @@ namespace parser::detail {
         this->start_pos,
         ksi::conv::from_string::to<text_type>{}(stream.str())
       );
+    }
+
+    void input_ended(parser_state & st, response_type & resp) override
+    {
+      if( resp.status == json_status::n_ok )
+      {
+        resp.status = json_status::n_text_unclosed;
+      }
     }
   };
 

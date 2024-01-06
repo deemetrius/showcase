@@ -34,30 +34,18 @@ namespace parser {
     using state_type = detail::nest_base<char_type, Maker, json_params>::parser_state;
     using nest = detail::nest_json<char_type, Maker>;
 
-    state_type state{ &maker, &this->params };
-    state.reader = std::make_unique<reader_type>(source);
+    response_type response;
+
+    state_type state{
+      &maker,
+      std::make_unique<reader_type>(source),
+      &this->params
+    };
     state.add_node(
       nest::node_top::create( &maker, &this->params, state.position.get() )
     );
-    
-    response_type response;
-    char_type ch{};
+    state.parser_loop(response);
 
-    for( ;; )
-    {
-      if( state.reader->is_end() )
-      {
-        state_type::action_ask_parent(state, response, ch);
-        // todo: сообщить ноде о завершении; чтобы нода смогла установить статус ошибки.
-        break;
-      }
-      state.next_action(state, response, ch);
-
-      if( state.empty() ) { break; }
-      state.parse(response, ch);
-    }
-
-    response.position = state.position.get();
     return response;
   }
 

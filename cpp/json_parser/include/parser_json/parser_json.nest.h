@@ -40,7 +40,7 @@ namespace parser::detail {
     using info = ksi::chars::info<Char>;
     using response_type = nest::response_type;
     using choicer_type = nest::choicer;
-    using state = nest::state;
+    using ptr_node = nest::ptr_node;
     using pos_type = ksi::files::position::data_type;
 
 

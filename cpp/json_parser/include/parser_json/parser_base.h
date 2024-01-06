@@ -15,6 +15,11 @@ namespace parser {
   };
 
 
+  struct skip_result
+  {
+    ksi::files::position::data_type pos{-1, 0, 0};
+  };
+
   struct unexpected_result
   {
     ksi::files::position::data_type pos{-1, 0, 0};
@@ -64,24 +69,30 @@ namespace parser::detail {
         throw unexpected_result{ start_pos };
       }
 
-      virtual void put_result(result_type result) {}
+      virtual void put_result(result_type result, parser_state & st, response_type & resp) {}
+
+      virtual void input_ended(parser_state & st, response_type & resp) {}
     };
 
 
-    using state = std::unique_ptr<node_base>;
+    using ptr_node = std::unique_ptr<node_base>;
 
 
     struct choicer
     {
+      static std::string get_name() { return "no_name?"; }
+
       static bool condition_false(Params const * params, Char ch)
       { return false; }
 
-      static state create_none(Maker * maker, Params const * params, pos_type start_pos)
+      static ptr_node create_none(Maker * maker, Params const * params, pos_type start_pos)
       { return std::make_unique<node_base>(start_pos); }
 
+      using fn_name = decltype( &get_name );
       using fn_condition = decltype( &condition_false );
       using fn_create = decltype( &create_none );
 
+      fn_name name{ &get_name };
       fn_condition condition{ &condition_false };
       fn_create create{ &create_none };
       index_t type{1};
@@ -90,87 +101,147 @@ namespace parser::detail {
 
     struct parser_state
     {
-      using chain = std::list<state>;
+      using chain = std::list<ptr_node>;
 
-      static void action_none(parser_state & st, response_type & resp, Char & ch)
-      {
-        st.next_action = &parser_state::action_continue;
-      }
+      // read actions
 
-      static void action_continue(parser_state & st, response_type & resp, Char & ch)
+      static void read_action(parser_state & st, Char & ch)
       {
         ch = st.reader->read_char();
       }
 
-      static void action_up(parser_state & st, response_type & resp, Char & ch)
+      static void read_action_none(parser_state & st, Char & ch)
       {
-        st.next_action = &parser_state::action_continue;
-        result_type result = st.nodes.back()->get_result(st);
-        st.nodes.pop_back();
-        st.nodes.back()->put_result(result);
-        ch = st.reader->read_char();
+        st.next_read_action = &read_action;
       }
 
-      static void action_ask_parent(parser_state & st, response_type & resp, Char & ch)
+      // post actions
+
+      static void action_none(parser_state & st, response_type & resp)
+      {}
+
+      static void action_up_result(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_continue;
-        result_type result = st.nodes.back()->get_result(st);
+        st.next_action = &parser_state::action_none;
+        inner_result_up(st, resp);
+      }
+
+      static void action_up_only(parser_state & st, response_type & resp)
+      {
+        st.next_action = &parser_state::action_none;
         st.nodes.pop_back();
-        if( st.nodes.empty() )
+      }
+
+      static void action_unwind(parser_state & st, response_type & resp)
+      {
+        st.next_action = &parser_state::action_none;
+        while( st.nodes.empty() == false )
         {
-          resp.value = result;
-          resp.status = is_status::e_unexpected_symbol;
-          resp.position = st.position.get();
-          return;
+          inner_result_up(st, resp);
         }
-        st.nodes.back()->put_result(result);
       }
 
-      static void action_ask_parent_no_value(parser_state & st, response_type & resp, Char & ch)
+      static void action_exit(parser_state & st, response_type & resp)
       {
-        st.next_action = &parser_state::action_continue;
-        st.nodes.pop_back();
-      }
-
-      static void action_exit(parser_state & st, response_type & resp, Char & ch)
-      {
+        st.next_action = &parser_state::action_none;
         st.nodes.clear();
       }
 
-      using action_type = decltype( &action_continue );
+      // action types
 
+      using read_action_type = decltype( &read_action );
+      using action_type = decltype( &action_none );
+
+      static void inner_result_up(parser_state & st, response_type & resp)
+      {
+        try
+        {
+          result_type result = st.nodes.back()->get_result(st);
+          st.nodes.pop_back();
+          if( st.nodes.empty() )
+          {
+            resp.value = result;
+          }
+          else
+          {
+            st.nodes.back()->put_result(result, st, resp);
+          }
+        }
+        catch( skip_result const & )
+        {
+          st.nodes.pop_back();
+        }
+      }
+
+      // data
       Params const * params{ nullptr };
       Maker * maker{ nullptr };
       chain nodes;
       reader_type reader;
       ksi::files::position position;
-      action_type next_action{ &action_continue };
+      action_type next_action{ &action_none };
+      read_action_type next_read_action{ &read_action };
 
-      parser_state(Maker * p_maker, Params const * h_params)
+      // ctor
+      parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params)
         : params{ h_params }
         , maker{ p_maker }
+        , reader{ std::move(p_reader) }
         , position{ h_params->tab_size }
       {}
 
+      void skip_read()
+      {
+        next_read_action = &read_action_none;
+      }
+
       void parse(response_type & resp, Char ch)
       {
-        state & node = nodes.back();
+        ptr_node & node = nodes.back();
         node->parse(*this, resp, ch);
         if( is_recognized() )
         {
           position.recognized(ch);
         }
+        while( next_action != &action_none )
+        {
+          next_action(*this, resp);
+        }
+      }
+
+      void parser_loop(response_type & response)
+      {
+        Char ch{};
+        for( ;; )
+        {
+          if( this->reader->is_end() )
+          {
+            this->when_done(response);
+            break;
+          }
+          this->next_read_action(*this, ch);
+
+          if( this->empty() ) { break; }
+          this->parse(response, ch);
+          if( this->empty() ) { break; }
+        }
+        response.position = this->position.get();
+      }
+
+      void when_done(response_type & resp)
+      {
+        if( nodes.empty() ) { return; }
+        ptr_node & node = nodes.back();
+        node->input_ended(*this, resp);
+        action_unwind(*this, resp);
       }
 
       bool is_recognized() const
       {
-        return
-           (next_action == &action_continue)
-        || (next_action == &action_up)
-        ;
+        return (next_read_action == &read_action);
       }
 
-      void add_node(state node)
+      void add_node(ptr_node node)
       {
         nodes.push_back( std::move(node) );
       }

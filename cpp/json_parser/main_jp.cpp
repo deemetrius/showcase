@@ -35,6 +35,7 @@ int main()
 
   std::cout << "src: " << json.size() << '\n';
   std::cout << "parsed: " << resp.position.char_pos << '\n';
+  std::cout << "status: " << resp.status << '\n';
   std::cout << "seems done\n";
 
   return 0;
