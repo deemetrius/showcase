@@ -53,6 +53,22 @@ namespace nut {
       tmp.push(n);
       return tmp.back<ssq::Object>();
     }
+
+    result_type make_text(pos_type pos, text str) const
+    {
+      show(pos);
+      std::wcout << "text: " << str << '\n';
+      array tmp = vm_pointer->newArray();
+      tmp.push(str);
+      return tmp.back<ssq::Object>();
+    }
+
+    map make_map(pos_type pos) const
+    {
+      show(pos);
+      std::cout << "map\n";
+      return vm_pointer->newTable();
+    }
   };
 
 }

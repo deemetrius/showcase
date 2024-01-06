@@ -1,6 +1,7 @@
 
 #include <optional>
 #include <string>
+#include <sstream>
 #include <array>
 #include <memory>
 #include <list>
@@ -12,6 +13,7 @@
 #include "include/ksi_lib/chars.info.hpp"
 #include "include/ksi_lib/files.position.hpp"
 #include "include/ksi_lib/lib.string_reader.hpp"
+#include "include/ksi_lib/conv.string.hpp"
 #include "include/nut_maker.h"
 #include "include/parser_json/parser_json.h"
 
@@ -21,7 +23,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  std::string json = "	-.";
+  std::string json = R"(	"123 1)";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
   maker_type maker{ &vm };

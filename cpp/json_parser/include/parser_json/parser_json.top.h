@@ -8,9 +8,10 @@ namespace parser::detail {
     : public node_base
   {
   protected:
-    static constexpr std::array<choicer_type const *, 2> choicers{
+    static constexpr std::array<choicer_type const *, 3> choicers{
       &node_space::choicer
     , &node_number::choicer
+    , &node_text::choicer
     };
 
     std::optional<result_type> value;
@@ -19,7 +20,7 @@ namespace parser::detail {
     using node_base::node_base;
 
   public:
-    static state create(json_params const * params, pos_type pos)
+    static state create(Maker * maker, json_params const * params, pos_type pos)
     {
       return std::make_unique<node_top>(pos);
     }
@@ -38,7 +39,7 @@ namespace parser::detail {
         {
           if( it->type > 0 ) { ++count_tokens; }
           st.add_node(
-            it->create( st.params, st.position.get() )
+            it->create( st.maker, st.params, st.position.get() )
           );
           st.next_action = &parser_state::action_none;
           return;

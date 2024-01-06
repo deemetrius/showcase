@@ -21,7 +21,7 @@ namespace parser::detail {
         ;
     }
 
-    static state create(json_params const * params, pos_type pos)
+    static state create(Maker * maker, json_params const * params, pos_type pos)
     {
       return std::make_unique<node_space>(pos);
     }

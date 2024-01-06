@@ -23,6 +23,15 @@ namespace ksi::chars {
     , tab   = '\t'
 
     , null  = '\0'
+
+    , quote_single  = '\''
+    , quote_double  = '"'
+
+    , bracket_open  = '['
+    , bracket_close = ']'
+
+    , brace_open  = '{'
+    , brace_close = '}'
     ;
   };
 
@@ -44,6 +53,15 @@ namespace ksi::chars {
     , tab   = L'\t'
 
     , null  = L'\0'
+
+    , quote_single  = L'\''
+    , quote_double  = L'"'
+
+    , bracket_open  = L'['
+    , bracket_close = L']'
+
+    , brace_open  = L'{'
+    , brace_close = L'}'
     ;
   };
 

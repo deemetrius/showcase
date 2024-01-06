@@ -7,7 +7,8 @@ namespace parser {
   {
     enum status : index_t
     {
-      n_ok = 0
+      n_ok = 0,
+      n_text_unclosed = 1,
     };
   };
 
@@ -45,6 +46,8 @@ namespace parser::detail {
 
     class node_space;
     class node_number;
+    class node_text;
+    class node_map;
     class node_top;
   }; // end nest
 

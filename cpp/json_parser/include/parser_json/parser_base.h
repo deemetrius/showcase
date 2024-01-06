@@ -76,7 +76,7 @@ namespace parser::detail {
       static bool condition_false(Params const * params, Char ch)
       { return false; }
 
-      static state create_none(Params const * params, pos_type start_pos)
+      static state create_none(Maker * maker, Params const * params, pos_type start_pos)
       { return std::make_unique<node_base>(start_pos); }
 
       using fn_condition = decltype( &condition_false );
@@ -140,13 +140,13 @@ namespace parser::detail {
       using action_type = decltype( &action_continue );
 
       Params const * params{ nullptr };
-      Maker const * maker{ nullptr };
+      Maker * maker{ nullptr };
       chain nodes;
       reader_type reader;
       ksi::files::position position;
       action_type next_action{ &action_continue };
 
-      parser_state(Maker const * p_maker, Params const * h_params)
+      parser_state(Maker * p_maker, Params const * h_params)
         : params{ h_params }
         , maker{ p_maker }
         , position{ h_params->tab_size }
