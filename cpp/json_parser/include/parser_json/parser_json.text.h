@@ -101,10 +101,7 @@ namespace parser::detail {
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      if( resp.status == json_status::n_ok )
-      {
-        resp.status = json_status::n_text_unclosed;
-      }
+      resp.change_status(json_status::n_text_unclosed);
     }
   };
 

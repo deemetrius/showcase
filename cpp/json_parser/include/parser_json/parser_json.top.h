@@ -44,7 +44,7 @@ namespace parser::detail {
         }
       }
       st.after_fn = &parser_state::action_exit;
-      resp.status = json_status::e_unexpected_symbol;
+      resp.change_status(json_status::e_unexpected_symbol);
     }
     
     result_type get_result(parser_state & st) override

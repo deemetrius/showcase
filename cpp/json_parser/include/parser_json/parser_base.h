@@ -34,6 +34,12 @@ namespace parser {
     std::optional<Result> value;
     index_t status{0};
     position_type position{};
+
+    void change_status(index_t new_status)
+    {
+      if( status != 0 ) { return; }
+      status = new_status;
+    }
   };
 
 
@@ -137,6 +143,7 @@ namespace parser::detail {
         st.after_fn = &parser_state::action_none;
         while( st.nodes.empty() == false )
         {
+          st.nodes.back()->input_ended(st, resp);
           inner_result_up(st, resp);
         }
       }
@@ -231,8 +238,6 @@ namespace parser::detail {
       void when_done(response_type & resp)
       {
         if( nodes.empty() ) { return; }
-        ptr_node & node = nodes.back();
-        node->input_ended(*this, resp);
         action_unwind(*this, resp);
       }
 

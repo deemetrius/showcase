@@ -11,6 +11,7 @@ namespace ksi::chars {
     static constexpr char
       minus = '-'
     , plus  = '+'
+    , colon = ':'
     , slash = '\\'
 
     , zero  = '0'
@@ -50,6 +51,7 @@ namespace ksi::chars {
     static constexpr wchar_t
       minus = L'-'
     , plus  = L'+'
+    , colon = L':'
     , slash = L'\\'
 
     , zero  = L'0'

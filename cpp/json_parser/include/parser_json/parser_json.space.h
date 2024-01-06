@@ -42,7 +42,7 @@ namespace parser::detail {
 
     result_type get_result(parser_state & st) override
     {
-      throw unexpected_result{ this->start_pos };
+      throw skip_result{ this->start_pos };
       return st.maker->make_null(
         this->start_pos
       );

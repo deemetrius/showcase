@@ -69,6 +69,20 @@ namespace nut {
       std::cout << "map\n";
       return vm_pointer->newTable();
     }
+
+    void map_insert(map & mp, result_type key, result_type value)
+    {
+      if( key.getType() != ssq::Type::STRING )
+      {
+        throw ssq::TypeException(
+          "Wrong Table key type",
+          "string",
+          key.getTypeStr()
+        );
+      }
+      text str_key = key.toString();
+      mp.set(str_key.c_str(), value);
+    }
   };
 
 }

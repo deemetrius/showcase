@@ -3,12 +3,21 @@
 namespace parser {
 
 
+  struct json_error_map_key_empty
+  {
+    ksi::files::position::data_type pos{-1, 0, 0};
+  };
+
+
   struct json_status : public is_status
   {
     enum status : index_t
     {
       n_ok = 0,
-      n_text_unclosed = 1,
+      n_text_unclosed,
+      n_map_unclosed,
+      n_map_unexpected_symbol,
+      n_map_internal_error,
     };
   };
 
