@@ -1,12 +1,18 @@
 #pragma once
 
+#include <optional>
+#include <list>
+#include <memory>
+
 #include "parser_base.h"
-#include "parser_json.nest.h"
-#include "parser_json.space.h"
-#include "parser_json.keyword.h"
-#include "parser_json.number.h"
-#include "parser_json.text.h"
-#include "parser_json.map.h"
+
+#include <initializer_list>
+#include <string>
+#include <sstream>
+#include <map>
+#include <limits>
+
+#include "../ksi_lib/conv.string.hpp"
 #include "parser_json.top.h"
 
 namespace parser {

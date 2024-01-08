@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../ksi_lib/files.position.hpp"
+#include "../ksi_lib/lib.string_reader.hpp"
+
 namespace parser {
 
 

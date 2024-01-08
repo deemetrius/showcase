@@ -1,23 +1,10 @@
 
-#include <initializer_list>
-#include <optional>
-#include <string>
-#include <sstream>
-#include <array>
-#include <map>
-#include <memory>
-#include <list>
-#include <limits>
 #include <iostream>
 
 #include <simplesquirrel/simplesquirrel.hpp>
 
-#include "include/ksi_lib/chars.info.hpp"
-#include "include/ksi_lib/files.position.hpp"
-#include "include/ksi_lib/lib.string_reader.hpp"
-#include "include/ksi_lib/conv.string.hpp"
-#include "include/nut_maker.h"
 #include "include/parser_json/parser_json.h"
+#include "include/nut_maker.h"
 
 int main()
 {

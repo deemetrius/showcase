@@ -1,5 +1,12 @@
 #pragma once
 
+#include "parser_json.nest.h"
+#include "parser_json.space.h"
+#include "parser_json.keyword.h"
+#include "parser_json.number.h"
+#include "parser_json.text.h"
+#include "parser_json.map.h"
+
 namespace parser::detail {
 
   template <typename Char, typename Maker>

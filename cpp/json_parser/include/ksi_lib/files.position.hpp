@@ -1,6 +1,9 @@
 #pragma once
 
+#include "chars.info.hpp"
+
 namespace ksi::files {
+
 
   using index_t = std::intptr_t;
 
@@ -68,7 +71,6 @@ namespace ksi::files {
       return this->pos;
     }
 
-
   protected:
     constexpr void add_line()
     {
@@ -129,6 +131,6 @@ namespace ksi::files {
         { this->on_default(); break; }
       }
     }
-  };
+  }; // end class
 
 } // end ns
