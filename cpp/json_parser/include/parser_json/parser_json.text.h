@@ -4,7 +4,7 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker>
-  class nest_json<Char, Maker>::node_text
+  class json_nest<Char, Maker>::node_text
     : public node_base
   {
   public:
@@ -91,7 +91,7 @@ namespace parser::detail {
       stream << ch;
     }
     
-    result_type get_result(parser_state & st) override
+    result_type get_result(parser_state & st, response_type & resp) override
     {
       return st.maker->make_text(
         this->start_pos,

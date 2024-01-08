@@ -3,6 +3,7 @@
 #include "parser_base.h"
 #include "parser_json.nest.h"
 #include "parser_json.space.h"
+#include "parser_json.keyword.h"
 #include "parser_json.number.h"
 #include "parser_json.text.h"
 #include "parser_json.map.h"
@@ -31,8 +32,8 @@ namespace parser {
   {
     using reader_type = ksi::lib::string_reader<String>;
     using char_type = decltype( std::declval<reader_type>().read_char() );
-    using state_type = detail::nest_base<char_type, Maker, json_params>::parser_state;
-    using nest = detail::nest_json<char_type, Maker>;
+    using state_type = detail::json_nest<char_type, Maker>::parser_state;
+    using nest = detail::json_nest<char_type, Maker>;
 
     response_type response;
 

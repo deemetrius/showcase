@@ -36,6 +36,15 @@ namespace nut {
       return tmp;
     }
 
+    result_type make_bool(pos_type pos, bool b) const
+    {
+      show(pos);
+      std::cout << "bool: " << std::boolalpha << b << '\n';
+      array tmp = vm_pointer->newArray();
+      tmp.push(b);
+      return tmp.back<ssq::Object>();
+    }
+
     result_type make_integer(pos_type pos, integer n) const
     {
       show(pos);

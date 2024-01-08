@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <array>
+#include <map>
 #include <memory>
 #include <list>
 #include <limits>
@@ -24,7 +25,11 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  std::string json = R"(	{"123\" 1": 15} )";
+  std::string json = R"(
+{
+  "123\" 1": 15,
+  "a": null
+} )";
 
   ssq::VM vm{1024, ssq::Libs::STRING | ssq::Libs::IO | ssq::Libs::MATH};
   maker_type maker{ &vm };
@@ -35,7 +40,7 @@ int main()
   parser_type::response_type resp = parser.from_string(maker, json);
 
   std::cout << "src: " << json.size() << '\n';
-  std::cout << "parsed: " << resp.position.char_pos << '\n';
+  std::cout << "parsed: " << resp.end_position.char_pos << '\n';
   std::cout << "status: " << resp.status << '\n';
   std::cout << "seems done\n";
 

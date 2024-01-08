@@ -4,14 +4,14 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker>
-  class nest_json<Char, Maker>::node_space
-    : public node_base
+  class json_nest<Char, Maker>::node_space
+    //: public node_base
   {
   protected:
-    using node_base::node_base;
-
+    //using node_base::node_base;
+    node_space() = delete;
   public:
-    static std::string get_name() { return "t_space"; }
+    //static std::string get_name() { return "t_space"; }
 
     static bool condition(json_params const * params, Char ch)
     {
@@ -22,7 +22,7 @@ namespace parser::detail {
         || (ch == info::lf)
         ;
     }
-
+    /*
     static ptr_node create(Maker * maker, json_params const * params, pos_type pos)
     {
       return std::make_unique<node_space>(pos);
@@ -46,7 +46,7 @@ namespace parser::detail {
       return st.maker->make_null(
         this->start_pos
       );
-    }
+    }*/
   };
 
 

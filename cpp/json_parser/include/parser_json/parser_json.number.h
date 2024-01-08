@@ -4,7 +4,7 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker>
-  class nest_json<Char, Maker>::node_number
+  class json_nest<Char, Maker>::node_number
     : public node_base
   {
   public:
@@ -48,7 +48,7 @@ namespace parser::detail {
     bool is_float = false;
     index_t count_digits{ 0 };
 
-    using node_base::node_base;
+    using node_base::node_base; // base ctor
 
     void on_digit(integer digit)
     {
@@ -127,7 +127,7 @@ namespace parser::detail {
       st.after_fn = &parser_state::action_up_result;
     }
 
-    result_type get_result(parser_state & st) override
+    result_type get_result(parser_state & st, response_type & resp) override
     {
       if( is_float == false )
       {

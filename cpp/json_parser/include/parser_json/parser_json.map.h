@@ -5,7 +5,7 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker>
-  class nest_json<Char, Maker>::node_map
+  class json_nest<Char, Maker>::node_map
     : public node_base
   {
   public:
@@ -126,7 +126,7 @@ namespace parser::detail {
       resp.change_status(json_status::n_map_unexpected_symbol);
     }
 
-    result_type get_result(parser_state & st) override
+    result_type get_result(parser_state & st, response_type & resp) override
     {
       return map;
     }

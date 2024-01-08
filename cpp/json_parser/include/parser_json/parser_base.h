@@ -15,12 +15,12 @@ namespace parser {
   };
 
 
-  struct skip_result
+  struct exception_skip_result
   {
     ksi::files::position::data_type pos{-1, 0, 0};
   };
 
-  struct unexpected_result
+  struct exception_result_unexpected
   {
     ksi::files::position::data_type pos{-1, 0, 0};
   };
@@ -33,7 +33,7 @@ namespace parser {
 
     std::optional<Result> value;
     index_t status{0};
-    position_type position{};
+    position_type end_position{};
 
     void change_status(index_t new_status)
     {
@@ -48,7 +48,7 @@ namespace parser {
 namespace parser::detail {
 
 
-  template <typename Char, typename Maker, typename Params>
+  template <typename Char, typename Maker, typename Params, typename Data>
   struct nest_base
   {
     using reader_type = std::unique_ptr< ksi::lib::reader<Char> >;
@@ -70,9 +70,9 @@ namespace parser::detail {
 
       virtual void parse(parser_state & st, response_type & resp, Char ch) {}
 
-      virtual result_type get_result(parser_state & st)
+      virtual result_type get_result(parser_state & st, response_type & resp)
       {
-        throw unexpected_result{ start_pos };
+        throw exception_result_unexpected{ start_pos };
       }
 
       virtual void put_result(result_type result, parser_state & st, response_type & resp) {}
@@ -178,7 +178,7 @@ namespace parser::detail {
       {
         try
         {
-          result_type result = st.nodes.back()->get_result(st);
+          result_type result = st.nodes.back()->get_result(st, resp);
           st.nodes.pop_back();
           if( st.nodes.empty() )
           {
@@ -189,7 +189,7 @@ namespace parser::detail {
             st.nodes.back()->put_result(result, st, resp);
           }
         }
-        catch( skip_result const & )
+        catch( exception_skip_result const & )
         {
           st.nodes.pop_back();
         }
@@ -203,6 +203,7 @@ namespace parser::detail {
       ksi::files::position position;
       action_type after_fn{ &action_none };
       read_action_type read_fn{ &read_action };
+      Data data{};
 
       // ctor
       parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params)
@@ -246,7 +247,7 @@ namespace parser::detail {
           this->parse(response, ch);
           if( this->empty() ) { break; }
         }
-        response.position = this->position.get();
+        response.end_position = this->position.get();
       }
 
       void when_done(response_type & resp)

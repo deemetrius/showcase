@@ -3,29 +3,25 @@
 namespace parser::detail {
 
   template <typename Char, typename Maker>
-  inline nest_json<Char, Maker>::choicer_type const *
-    nest_json<Char, Maker>::find_from_all(json_params const * params, Char ch)
+  inline json_nest<Char, Maker>::choicer_type const *
+    json_nest<Char, Maker>::find_from_all(json_params const * params, Char ch)
   {
     return choicer_type::template find< std::initializer_list<choicer_type const *> >(
       {
         &node_number::choicer,
         &node_text::choicer,
-        &node_map::choicer
+        &node_map::choicer,
+        &node_keyword::choicer
       },
       params, ch
     );
   }
 
   template <typename Char, typename Maker>
-  class nest_json<Char, Maker>::node_top
+  class json_nest<Char, Maker>::node_top
     : public node_base
   {
   protected:
-    /*static constexpr std::array<choicer_type const *, 3> choicers{
-      &node_number::choicer
-    , &node_text::choicer
-    , &node_table::choicer
-    };*/
 
     index_t count_tokens{0};
 
@@ -62,25 +58,12 @@ namespace parser::detail {
         it->create( st.maker, st.params, st.position.get() )
       );
       st.skip_read();
-      /*for( choicer_type const * it : choicers )
-      {
-        if( it->condition(st.params, ch) )
-        {
-          if( it->type > 0 ) { ++count_tokens; }
-          st.add_node(
-            it->create( st.maker, st.params, st.position.get() )
-          );
-          st.skip_read();
-          return;
-        }
-      }
-      st.after_fn = &parser_state::action_exit;
-      resp.change_status(json_status::e_unexpected_symbol);*/
+      
     }
     
-    result_type get_result(parser_state & st) override
+    result_type get_result(parser_state & st, response_type & resp) override
     {
-      throw skip_result{ this->start_pos };
+      throw exception_skip_result{ this->start_pos };
       return st.maker->make_null(
         this->start_pos
       );
@@ -92,6 +75,5 @@ namespace parser::detail {
       st.after_fn = &parser_state::action_exit;
     }
   };
-
 
 } // end ns

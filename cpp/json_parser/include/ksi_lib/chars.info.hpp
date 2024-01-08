@@ -16,14 +16,16 @@ namespace ksi::chars {
     , dot   = '.'
     , slash = '\\'
 
-    , zero  = '0'
-    , nine  = '9'
+    , digit_0  = '0'
+    , digit_9  = '9'
 
+    , letter_a = 'a'
     , letter_b = 'b'
     , letter_f = 'f'
     , letter_n = 'n'
     , letter_r = 'r'
     , letter_t = 't'
+    , letter_z = 'z'
 
     , ff    = '\f'
     , cr    = '\r'
@@ -56,14 +58,16 @@ namespace ksi::chars {
     , dot   = L'.'
     , slash = L'\\'
 
-    , zero  = L'0'
-    , nine  = L'9'
+    , digit_0 = L'0'
+    , digit_9 = L'9'
 
+    , letter_a = L'a'
     , letter_b = L'b'
     , letter_f = L'f'
     , letter_n = L'n'
     , letter_r = L'r'
     , letter_t = L't'
+    , letter_z = L'z'
 
     , ff    = L'\f'
     , cr    = L'\r'
@@ -86,12 +90,22 @@ namespace ksi::chars {
   };
 
   template <typename Char>
+  bool is_letter_english_small(Char ch)
+  {
+    using info_t = info<Char>;
+    return (
+      (ch >= info_t::letter_a) &&
+      (ch <= info_t::letter_z)
+    );
+  }
+
+  template <typename Char>
   bool is_digit(Char ch)
   {
     using info_t = info<Char>;
     return (
-      (ch >= info_t::zero) &&
-      (ch <= info_t::nine)
+      (ch >= info_t::digit_0) &&
+      (ch <= info_t::digit_9)
     );
   }
 
@@ -99,7 +113,7 @@ namespace ksi::chars {
   Integer digit_of(Char ch)
   {
     using info_t = info<Char>;
-    return (ch - info_t::zero);
+    return (ch - info_t::digit_0);
   }
 
 } // end ns
