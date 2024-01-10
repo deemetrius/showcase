@@ -4,52 +4,50 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker>
-  class json_nest<Char, Maker>::node_map
+  class json_nest<Char, Maker>::node_array
     : public node_base
   {
   public:
-    static std::string get_name() { return "t_map"; }
+    static std::string get_name() { return "t_array"; }
 
     static bool condition(json_params const * params, Char ch)
     {
-      return (ch == info::brace_open);
+      return (ch == info::bracket_open);
     }
 
     static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
     {
-      return std::make_unique<node_map>(start_pos, maker);
+      return std::make_unique<node_array>(start_pos, maker);
     }
 
     static constexpr choicer_type choicer{&get_name, &condition, &create};
 
 
-    using map_type = Maker::map;
-    using text_type = Maker::text;
+    using array_type = Maker::array;
+    using integer_type = Maker::integer;
 
     enum kind : std::size_t
     {
       kind_open      = (1 << 0),
       kind_close     = (1 << 1),
-      kind_key       = (1 << 2),
-      kind_delimiter = (1 << 3),
-      kind_value     = (1 << 4),
-      kind_separator = (1 << 5),
+      kind_value     = (1 << 2),
+      kind_separator = (1 << 3),
 
-      was_open      = (kind_close | kind_key),
-      was_key       = (kind_delimiter),
-      was_delimiter = (kind_value),
+      was_open      = (kind_close | kind_value),
       was_value     = (kind_close | kind_separator),
-      was_separator = (kind_key),
+      was_separator = (kind_value),
       was_close     = 0,
     };
 
-    map_type map;
-    kind req{ kind_open };
-    std::optional<result_type> key{};
+    // data
+    array_type array;
+    integer_type index{0};
+    kind req{kind_open};
 
-    node_map(pos_type pos, Maker * maker)
-      : node_base{ pos }
-      , map{ maker->make_map(pos) }
+    // ctor
+    node_array(pos_type pos, Maker * maker)
+      : node_base{pos}
+      , array{maker->make_array(pos)}
     {}
 
     void parse(parser_state & st, response_type & resp, Char ch) override
@@ -61,7 +59,7 @@ namespace parser::detail {
 
       if( (req & kind_open) != 0 )
       {
-        if( ch == info::brace_open )
+        if( ch == info::bracket_open )
         {
           req = was_open;
           return;
@@ -70,19 +68,10 @@ namespace parser::detail {
 
       if( (req & kind_close) != 0 )
       {
-        if( ch == info::brace_close )
+        if( ch == info::bracket_close )
         {
           st.after_fn = &parser_state::action_up_result;
           req = was_close;
-          return;
-        }
-      }
-
-      if( (req & kind_delimiter) != 0 )
-      {
-        if( ch == info::colon )
-        {
-          req = was_delimiter;
           return;
         }
       }
@@ -92,18 +81,6 @@ namespace parser::detail {
         if( ch == info::comma )
         {
           req = was_separator;
-          return;
-        }
-      }
-
-      if( (req & kind_key) != 0 )
-      {
-        if( node_text::condition(st.params, ch) )
-        {
-          st.add_node(
-            node_text::create( st.maker, st.params, st.position.get() )
-          );
-          st.skip_read();
           return;
         }
       }
@@ -123,43 +100,32 @@ namespace parser::detail {
 
       // not match
       st.after_fn = &parser_state::action_unwind;
-      resp.change_status(json_status::n_map_unexpected_symbol);
+      resp.change_status(json_status::n_array_unexpected_symbol);
     }
 
     result_type get_result(parser_state & st, response_type & resp) override
     {
-      return map;
+      return array;
     }
 
     void put_result(result_type result, parser_state & st, response_type & resp) override
     {
-      if( (req & kind_key) != 0 )
-      {
-        key = result;
-        req = was_key;
-        return;
-      }
-
       if( (req & kind_value) != 0 )
       {
-        if( key.has_value() == false )
-        {
-          throw json_error_map_key_empty{st.position.get()};
-        }
-        st.maker->map_insert(map, key.value(), result);
-        key.reset();
+        st.maker->array_insert(array, index, result);
         req = was_value;
+        ++index;
         return;
       }
 
-      resp.change_status(json_status::n_map_internal_error);
+      resp.change_status(json_status::n_array_internal_error);
     }
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      resp.change_status(json_status::n_map_unclosed);
+      resp.change_status(json_status::n_array_unclosed);
     }
-  };
+  }; // end class
 
 
 } // end ns

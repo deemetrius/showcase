@@ -16,6 +16,9 @@ namespace parser {
       n_ok = 0,
       n_keyword_unknown,
       n_text_unclosed,
+      n_array_unclosed,
+      n_array_unexpected_symbol,
+      n_array_internal_error,
       n_map_unclosed,
       n_map_unexpected_symbol,
       n_map_internal_error,
@@ -92,6 +95,7 @@ namespace parser::detail {
     class node_keyword;
     class node_number;
     class node_text;
+    class node_array;
     class node_map;
     class node_top;
     class state_json;

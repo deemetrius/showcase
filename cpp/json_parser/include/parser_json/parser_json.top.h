@@ -5,6 +5,7 @@
 #include "parser_json.keyword.h"
 #include "parser_json.number.h"
 #include "parser_json.text.h"
+#include "parser_json.array.h"
 #include "parser_json.map.h"
 
 namespace parser::detail {
@@ -15,9 +16,10 @@ namespace parser::detail {
   {
     return choicer_type::template find< std::initializer_list<choicer_type const *> >(
       {
-        &node_number::choicer,
         &node_text::choicer,
+        &node_number::choicer,
         &node_map::choicer,
+        &node_array::choicer,
         &node_keyword::choicer
       },
       params, ch

@@ -72,11 +72,24 @@ namespace nut {
       return tmp.back<ssq::Object>();
     }
 
+    array make_array(pos_type pos) const
+    {
+      show(pos);
+      std::cout << "array\n";
+      return vm_pointer->newArray();
+    }
+
     map make_map(pos_type pos) const
     {
       show(pos);
       std::cout << "map\n";
       return vm_pointer->newTable();
+    }
+
+    void array_insert(array & ar, integer index, result_type value)
+    {
+      std::cout << "array append: " << index << '\n';
+      ar.push(value);
     }
 
     void map_insert(map & mp, result_type key, result_type value)

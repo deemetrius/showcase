@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ksi_lib\conv.string.hpp" />
+    <ClInclude Include="include\parser_json\parser_json.array.h" />
     <ClInclude Include="include\parser_json\parser_json.h" />
     <ClInclude Include="include\ksi_lib\chars.info.hpp" />
     <ClInclude Include="include\ksi_lib\files.position.hpp" />
