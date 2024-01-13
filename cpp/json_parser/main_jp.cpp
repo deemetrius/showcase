@@ -14,8 +14,8 @@ int main()
 
   std::string json = R"(
 {
-  "items": [null, true, 55],
-  "123\" 1": 15,
+  "items": [null, true, -9223372036854775808],
+  "123\" 1": +15.25,
   "a": null
 } )";
 
