@@ -5,12 +5,16 @@
 
 #include "include/parser_json/parser_json.h"
 #include "include/nut_maker.h"
+#include "include/lib_log/log_list.h"
 
 int main()
 {
   using text = std::string;
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
+
+  using log_type = lib_log::list<std::string, std::nullptr_t, ksi::files::position::data_type>;
+  log_type log;
 
   std::string json = R"(
 {

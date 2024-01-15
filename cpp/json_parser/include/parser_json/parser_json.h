@@ -4,6 +4,7 @@
 #include <list>
 #include <memory>
 
+#include "../lib_log/log_base.h"
 #include "parser_base.h"
 
 #include <initializer_list>
