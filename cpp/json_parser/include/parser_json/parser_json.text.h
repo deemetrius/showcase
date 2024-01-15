@@ -3,8 +3,8 @@
 namespace parser::detail {
 
 
-  template <typename Char, typename Maker>
-  class json_nest<Char, Maker>::node_text
+  template <typename Char, typename Maker, typename Log_string>
+  class json_nest<Char, Maker, Log_string>::node_text
     : public node_base
   {
   public:

@@ -13,7 +13,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  using log_type = lib_log::list<std::string, std::nullptr_t, ksi::files::position::data_type>;
+  using log_type = lib_log::list<std::string, parser::json_status, ksi::files::position::data_type>;
   log_type log;
 
   std::string json = R"(
@@ -29,7 +29,7 @@ int main()
   parser_type parser;
   parser.params.number.nan_only_dot = true;
   parser.params.number.infinity_sign_dot = true;
-  parser_type::response_type resp = parser.from_string(maker, json);
+  parser_type::response_type resp = parser.from_string(maker, json, &log);
 
   std::cout << "src: " << json.size() << '\n';
   std::cout << "parsed: " << resp.end_position.char_pos << '\n';

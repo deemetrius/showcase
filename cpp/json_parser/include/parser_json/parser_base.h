@@ -209,11 +209,13 @@ namespace parser::detail {
       Data data{};
 
       // ctor
-      parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params)
+      template <typename ... Args_data>
+      parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params, Args_data ... args_data)
         : params{ h_params }
         , maker{ p_maker }
         , reader{ std::move(p_reader) }
         , position{ h_params->tab_size }
+        , data{ args_data ... }
       {}
 
       void skip_read()

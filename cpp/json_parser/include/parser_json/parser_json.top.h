@@ -10,9 +10,9 @@
 
 namespace parser::detail {
 
-  template <typename Char, typename Maker>
-  inline json_nest<Char, Maker>::choicer_type const *
-    json_nest<Char, Maker>::find_from_all(json_params const * params, Char ch)
+  template <typename Char, typename Maker, typename Log_string>
+  inline json_nest<Char, Maker, Log_string>::choicer_type const *
+    json_nest<Char, Maker, Log_string>::find_from_all(json_params const * params, Char ch)
   {
     return choicer_type::template find< std::initializer_list<choicer_type const *> >(
       {
@@ -26,8 +26,8 @@ namespace parser::detail {
     );
   }
 
-  template <typename Char, typename Maker>
-  class json_nest<Char, Maker>::node_top
+  template <typename Char, typename Maker, typename Log_string>
+  class json_nest<Char, Maker, Log_string>::node_top
     : public node_base
   {
   protected:

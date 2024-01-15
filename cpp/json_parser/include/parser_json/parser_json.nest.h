@@ -39,11 +39,15 @@ namespace parser {
   };
 
 
+  template <typename Log_string>
+  using json_log_pointer = lib_log::base<Log_string, json_status, ksi::files::position::data_type> *;
+
+
 } // end ns
 namespace parser::detail {
 
 
-  template <typename Char, typename Maker>
+  template <typename Char, typename Maker, typename Log_string>
   class json_state_data
   {
   public:
@@ -63,24 +67,26 @@ namespace parser::detail {
       return maker->make_bool(pos, true);
     }
     using fn_make = decltype(&make_null);
+
     using string = std::basic_string<Char>;
     using conv_string = ksi::conv::from_string::to<string>;
     using map_make_function = std::map<string, fn_make>;
 
     // data
+    json_log_pointer<Log_string> log{ nullptr };
     map_make_function const map_keywords{
-      {conv_string{}("null"), &make_null},
-      {conv_string{}("false"), &make_false},
-      {conv_string{}("true"), &make_true}
+      { conv_string{}("null"), &make_null },
+      { conv_string{}("false"), &make_false },
+      { conv_string{}("true"), &make_true }
     };
   };
 
 
-  template <typename Char, typename Maker>
+  template <typename Char, typename Maker, typename Log_string>
   struct json_nest
   {
     using result_type = Maker::result_type;
-    using state_data = json_state_data<Char, Maker>;
+    using state_data = json_state_data<Char, Maker, Log_string>;
     using nest = nest_base<Char, Maker, json_params, state_data>;
     using node_base = nest::node_base;
     using info = ksi::chars::info<Char>;
