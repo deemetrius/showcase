@@ -13,7 +13,7 @@
 #include <map>
 #include <limits>
 
-#include "../ksi_lib/conv.string.hpp"
+#include "../string_join.h"
 #include "parser_json.top.h"
 
 namespace parser {

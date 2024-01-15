@@ -13,7 +13,7 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  using log_type = lib_log::list<std::string, parser::json_status, ksi::files::position::data_type>;
+  using log_type = lib_log::list<std::string, parser::index_t, ksi::files::position::data_type>;
   log_type log;
 
   std::string json = R"(
@@ -33,7 +33,14 @@ int main()
 
   std::cout << "src: " << json.size() << '\n';
   std::cout << "parsed: " << resp.end_position.char_pos << '\n';
-  std::cout << "status: " << resp.status << '\n';
+  std::cout << "status: " << resp.status << "\n\n";
+
+  for( typename log_type::node_type const & it : log.starage )
+  {
+    maker_type::show(it.data);
+    std::cout << it.message << '\n';
+  }
+
   std::cout << "seems done\n";
 
   return 0;

@@ -57,6 +57,8 @@ namespace parser::detail {
         return;
       }
 
+      std::vector<Log_string> expected;
+
       if( (req & kind_open) != 0 )
       {
         if( ch == info::bracket_open )
@@ -64,6 +66,7 @@ namespace parser::detail {
           req = was_open;
           return;
         }
+        expected.push_back( log_conv_type{}("T_OPEN_BRACKET") );
       }
 
       if( (req & kind_close) != 0 )
@@ -74,6 +77,7 @@ namespace parser::detail {
           req = was_close;
           return;
         }
+        expected.push_back( log_conv_type{}("T_CLOSE_BRACKET") );
       }
 
       if( (req & kind_separator) != 0 )
@@ -83,6 +87,7 @@ namespace parser::detail {
           req = was_separator;
           return;
         }
+        expected.push_back( log_conv_type{}("T_COMMA") );
       }
 
       if( (req & kind_value) != 0 )
@@ -96,9 +101,15 @@ namespace parser::detail {
           st.skip_read();
           return;
         }
+        expected.push_back( log_conv_type{}("T_VALUE") );
       }
 
       // not match
+      st.data.log->inform(
+        lib_string::join<Log_string>(expected, ", ", "Wrong symbol found; Expected: "),
+        json_status::n_array_unexpected_symbol,
+        st.position.get()
+      );
       st.after_fn = &parser_state::action_unwind;
       resp.change_status(json_status::n_array_unexpected_symbol);
     }
@@ -118,11 +129,21 @@ namespace parser::detail {
         return;
       }
 
+      st.data.log->inform(
+        "Internal array error",
+        json_status::n_array_internal_error,
+        st.position.get()
+      );
       resp.change_status(json_status::n_array_internal_error);
     }
 
     void input_ended(parser_state & st, response_type & resp) override
     {
+      st.data.log->inform(
+        "Unexpected end of json inside of array.",
+        json_status::n_array_unclosed,
+        st.position.get()
+      );
       resp.change_status(json_status::n_array_unclosed);
     }
   }; // end class

@@ -40,7 +40,7 @@ namespace parser {
 
 
   template <typename Log_string>
-  using json_log_pointer = lib_log::base<Log_string, json_status, ksi::files::position::data_type> *;
+  using json_log_pointer = lib_log::base<Log_string, index_t, ksi::files::position::data_type> *;
 
 
 } // end ns
@@ -95,6 +95,7 @@ namespace parser::detail {
     using ptr_node = nest::ptr_node;
     using pos_type = ksi::files::position::data_type;
     using parser_state = nest::parser_state;
+    using log_conv_type = ksi::conv::from_string::to<Log_string>;
 
 
     class node_space;
