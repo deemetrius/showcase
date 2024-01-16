@@ -27,9 +27,9 @@ namespace lib_log {
     // actions
 
     void
-      inform(string_type message, kind_type knid, data_type data) override
+      inform(string_type message, kind_type kind, data_type data) override
     {
-      starage.push_back({ message, knid, data });
+      starage.push_back({ message, kind, data });
     }
 
     index_type

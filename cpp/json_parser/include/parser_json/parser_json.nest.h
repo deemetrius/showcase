@@ -1,5 +1,18 @@
 #pragma once
 
+#include "parser_base.h"
+#include "../lib_log/log_base.h"
+#include "../lib_aux/string_join.h"
+#include "../lib_aux/numeric_edges.h"
+
+#include <cstdint>
+#include <initializer_list>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <limits>
+
 namespace parser {
 
 
@@ -14,11 +27,16 @@ namespace parser {
     enum status : index_t
     {
       n_ok = 0,
+
       n_keyword_unknown,
-      n_text_unclosed,
+
+      n_string_unclosed,
+      n_string_unk_esc_seq,
+
       n_array_unclosed,
       n_array_unexpected_symbol,
       n_array_internal_error,
+
       n_map_unclosed,
       n_map_unexpected_symbol,
       n_map_internal_error,

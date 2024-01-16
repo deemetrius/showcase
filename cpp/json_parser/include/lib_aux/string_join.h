@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sstream>
-#include "ksi_lib/conv.string.hpp"
+#include "../ksi_lib/conv.string.hpp"
 
 namespace lib_string {
 

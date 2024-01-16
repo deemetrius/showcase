@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ksi_lib\conv.string.hpp" />
+    <ClInclude Include="include\lib_aux\numeric_edges.h" />
     <ClInclude Include="include\lib_log\log_base.h" />
     <ClInclude Include="include\lib_log\log_list.h" />
     <ClInclude Include="include\lib_log\log_node.h" />
@@ -79,7 +80,7 @@
     <ClInclude Include="include\parser_json\parser_json.space.h" />
     <ClInclude Include="include\parser_json\parser_json.text.h" />
     <ClInclude Include="include\parser_json\parser_json.top.h" />
-    <ClInclude Include="include\string_join.h" />
+    <ClInclude Include="include\lib_aux\string_join.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

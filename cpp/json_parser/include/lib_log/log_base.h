@@ -30,7 +30,7 @@ namespace lib_log {
     // actions
 
     virtual void
-      inform(string_type message, kind_type knid, data_type data) = 0;
+      inform(string_type message, kind_type kind, data_type data) = 0;
 
     virtual index_type
       count() const

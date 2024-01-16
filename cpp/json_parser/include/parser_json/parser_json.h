@@ -1,19 +1,5 @@
 #pragma once
 
-#include <optional>
-#include <list>
-#include <memory>
-
-#include "../lib_log/log_base.h"
-#include "parser_base.h"
-
-#include <initializer_list>
-#include <string>
-#include <sstream>
-#include <map>
-#include <limits>
-
-#include "../string_join.h"
 #include "parser_json.top.h"
 
 namespace parser {

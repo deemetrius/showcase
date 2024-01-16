@@ -1,6 +1,9 @@
 #pragma once
 
+#include <simplesquirrel/simplesquirrel.hpp>
+
 namespace nut {
+
 
   using integer = std::intptr_t;
 
@@ -110,4 +113,5 @@ namespace nut {
     }
   };
 
-}
+
+} // end ns

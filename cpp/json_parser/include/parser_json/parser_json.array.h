@@ -1,5 +1,7 @@
 #pragma once
 
+#include "parser_json.nest.h"
+
 namespace parser::detail {
 
 
@@ -130,7 +132,7 @@ namespace parser::detail {
       }
 
       st.data.log->inform(
-        "Internal array error",
+        log_conv_type{}("Internal array error"),
         json_status::n_array_internal_error,
         st.position.get()
       );
@@ -140,7 +142,7 @@ namespace parser::detail {
     void input_ended(parser_state & st, response_type & resp) override
     {
       st.data.log->inform(
-        "Unexpected end of json inside of array.",
+        log_conv_type{}("Unexpected end of json inside array."),
         json_status::n_array_unclosed,
         st.position.get()
       );

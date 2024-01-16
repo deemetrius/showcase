@@ -3,6 +3,10 @@
 #include "../ksi_lib/files.position.hpp"
 #include "../ksi_lib/lib.string_reader.hpp"
 
+#include <optional>
+#include <memory>
+#include <list>
+
 namespace parser {
 
 

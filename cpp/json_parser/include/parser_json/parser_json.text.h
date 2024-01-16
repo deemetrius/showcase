@@ -1,5 +1,7 @@
 #pragma once
 
+#include "parser_json.nest.h"
+
 namespace parser::detail {
 
 
@@ -28,6 +30,7 @@ namespace parser::detail {
 
     stream_type stream;
     bool was_slash{ false };
+    pos_type slash_pos{ -1, 0, 0 };
 
     using node_base::node_base; // base ctor
 
@@ -50,30 +53,40 @@ namespace parser::detail {
         was_slash = false;
         switch( ch )
         {
-        case info::letter_f:
-          stream << info::ff;
-          return;
-
-        case info::letter_r:
-          stream << info::cr;
-          return;
-
-        case info::letter_n:
+          case info::letter_n:
           stream << info::lf;
           return;
 
-        case info::letter_t:
+          case info::letter_r:
+          stream << info::cr;
+          return;
+
+          case info::letter_t:
           stream << info::tab;
           return;
 
-        case info::letter_b:
+          case info::letter_f:
+          stream << info::ff;
+          return;
+
+          case info::letter_b:
           stream << info::bs;
           return;
 
-        default:
+          case info::quote_double: { [[fallthrough]]; }
+          case info::slash:
           stream << ch;
           return;
+
+          default:
+          stream << ch;
+          st.data.log->inform(
+            log_conv_type{}("Unrecognized escape sequence; Slash char was ignored; Next char was used normally."),
+            json_status::n_string_unk_esc_seq,
+            slash_pos
+          );
         }
+        return;
       }
 
       if( ch == info::quote_double )
@@ -85,6 +98,7 @@ namespace parser::detail {
       if( ch == info::slash )
       {
         was_slash = true;
+        slash_pos = st.position.get();
         return;
       }
 
@@ -101,7 +115,12 @@ namespace parser::detail {
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      resp.change_status(json_status::n_text_unclosed);
+      st.data.log->inform(
+        log_conv_type{}("Unexpected end of json inside string."),
+        json_status::n_string_unclosed,
+        st.position.get()
+      );
+      resp.change_status(json_status::n_string_unclosed);
     }
   };
 
