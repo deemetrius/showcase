@@ -11,7 +11,9 @@ int main()
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
 
-  using log_type = lib_log::list<std::string, parser::index_t, ksi::files::position::data_type>;
+  using log_node_type = parser::json_log_node<std::string>;
+  using log_type = lib_log::list<log_node_type>;
+  //using log_type = lib_log::list<std::string, parser::index_t, ksi::files::position::data_type>;
   log_type log;
 
   std::string json = R"(

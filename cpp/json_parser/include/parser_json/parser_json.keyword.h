@@ -25,7 +25,7 @@ namespace parser::detail {
     static constexpr choicer_type choicer{&get_name, &condition, &create};
 
 
-    // data
+    // props
     std::basic_stringstream<Char> stream{};
 
     using node_base::node_base; // base ctor
@@ -50,7 +50,7 @@ namespace parser::detail {
       if( it == st.data.map_keywords.end() )
       {
         it = st.data.map_keywords.begin();
-        resp.change_status(json_status::n_keyword_unknown);
+        resp.change_status(json_message_codes::n_keyword_unknown);
       }
       return it->second(st.maker, this->start_pos);
     }

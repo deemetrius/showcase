@@ -13,15 +13,6 @@ namespace parser {
   using index_t = std::ptrdiff_t;
 
 
-  struct is_status
-  {
-    enum status_base : index_t
-    {
-      e_unexpected_symbol = -1
-    };
-  };
-
-
   struct exception_skip_result
   {
     ksi::files::position::data_type pos{-1, 0, 0};
@@ -69,11 +60,15 @@ namespace parser::detail {
 
     struct node_base
     {
+      // props
       pos_type start_pos{-1, 0, 0};
 
+      // ctor
       node_base(pos_type pos)
         : start_pos{ pos }
       {}
+
+      // actions
 
       virtual void parse(parser_state & st, response_type & resp, Char ch) {}
 
@@ -165,7 +160,6 @@ namespace parser::detail {
         st.after_fn = &parser_state::action_none;
         while( st.nodes.empty() == false )
         {
-          st.nodes.back()->input_ended(st, resp);
           inner_result_up(st, resp);
         }
       }
@@ -202,7 +196,7 @@ namespace parser::detail {
         }
       }
 
-      // data
+      // props
       Params const * params{ nullptr };
       Maker * maker{ nullptr };
       chain nodes;
@@ -262,6 +256,7 @@ namespace parser::detail {
       void when_done(response_type & resp)
       {
         if( nodes.empty() ) { return; }
+        nodes.back()->input_ended(*this, resp);
         action_unwind(*this, resp);
       }
 

@@ -80,11 +80,11 @@ namespace parser::detail {
 
           default:
           stream << ch;
-          st.data.log->inform(
-            log_conv_type{}("Unrecognized escape sequence; Slash char was ignored; Next char was used normally."),
-            json_status::n_string_unk_esc_seq,
+          st.data.log->inform({
+            log_messages::text_escape_sequence_notice(),
+            json_message_type::n_notice,
             slash_pos
-          );
+          });
         }
         return;
       }
@@ -115,12 +115,12 @@ namespace parser::detail {
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      st.data.log->inform(
-        log_conv_type{}("Unexpected end of json inside string."),
-        json_status::n_string_unclosed,
+      st.data.log->inform({
+        log_messages::text_unclosed(),
+        json_message_type::n_error,
         st.position.get()
-      );
-      resp.change_status(json_status::n_string_unclosed);
+      });
+      resp.change_status(json_message_codes::n_string_unclosed);
     }
   };
 

@@ -70,7 +70,7 @@ namespace parser::detail {
           req = was_open;
           return;
         }
-        expected.push_back( log_conv_type{}("T_OPEN_BRACE") );
+        expected.push_back( log_conv_type{}("t_open_brace") );
       }
 
       if( (req & kind_close) != 0 )
@@ -81,7 +81,7 @@ namespace parser::detail {
           req = was_close;
           return;
         }
-        expected.push_back( log_conv_type{}("T_CLOSE_BRACE") );
+        expected.push_back( log_conv_type{}("t_close_brace") );
       }
 
       if( (req & kind_delimiter) != 0 )
@@ -91,7 +91,7 @@ namespace parser::detail {
           req = was_delimiter;
           return;
         }
-        expected.push_back( log_conv_type{}("T_COLON") );
+        expected.push_back( log_conv_type{}("t_colon") );
       }
 
       if( (req & kind_separator) != 0 )
@@ -101,7 +101,7 @@ namespace parser::detail {
           req = was_separator;
           return;
         }
-        expected.push_back( log_conv_type{}("T_COMMA") );
+        expected.push_back( log_conv_type{}("t_comma") );
       }
 
       if( (req & kind_key) != 0 )
@@ -114,7 +114,7 @@ namespace parser::detail {
           st.skip_read();
           return;
         }
-        expected.push_back( log_conv_type{}("T_VALUE_STRING") );
+        expected.push_back( log_conv_type{}("t_value_string") );
       }
 
       if( (req & kind_value) != 0 )
@@ -128,17 +128,17 @@ namespace parser::detail {
           st.skip_read();
           return;
         }
-        expected.push_back( log_conv_type{}("T_VALUE") );
+        expected.push_back( log_conv_type{}("t_value") );
       }
 
       // not match
-      st.data.log->inform(
-        lib_string::join<Log_string>(expected, ", ", "Wrong symbol found; Expected: "),
-        json_status::n_array_unexpected_symbol,
+      st.data.log->inform({
+        log_messages::map_unexpected(expected),
+        json_message_type::n_error,
         st.position.get()
-      );
+      });
       st.after_fn = &parser_state::action_unwind;
-      resp.change_status(json_status::n_map_unexpected_symbol);
+      resp.change_status(json_message_codes::n_map_unexpected_symbol);
     }
 
     result_type get_result(parser_state & st, response_type & resp) override
@@ -167,22 +167,22 @@ namespace parser::detail {
         return;
       }
 
-      st.data.log->inform(
-        log_conv_type{}("Internal map error"),
-        json_status::n_map_internal_error,
+      st.data.log->inform({
+        log_messages::map_internal(),
+        json_message_type::n_error,
         st.position.get()
-      );
-      resp.change_status(json_status::n_map_internal_error);
+      });
+      resp.change_status(json_message_codes::n_map_internal_error);
     }
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      st.data.log->inform(
-        log_conv_type{}("Unexpected end of json inside map."),
-        json_status::n_map_unclosed,
+      st.data.log->inform({
+        log_messages::map_unclosed(),
+        json_message_type::n_error,
         st.position.get()
-      );
-      resp.change_status(json_status::n_map_unclosed);
+      });
+      resp.change_status(json_message_codes::n_map_unclosed);
     }
   };
 

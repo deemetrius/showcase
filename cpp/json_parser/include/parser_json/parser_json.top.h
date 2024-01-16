@@ -59,7 +59,7 @@ namespace parser::detail {
       if( it == nullptr )
       {
         st.after_fn = &parser_state::action_exit;
-        resp.change_status(json_status::e_unexpected_symbol);
+        resp.change_status(json_message_codes::n_top_unexpected_symbol);
         return;
       }
       ++count_tokens;

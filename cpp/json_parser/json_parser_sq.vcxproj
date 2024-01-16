@@ -75,6 +75,7 @@
     <ClInclude Include="include\parser_json\parser_base.h" />
     <ClInclude Include="include\parser_json\parser_json.keyword.h" />
     <ClInclude Include="include\parser_json\parser_json.map.h" />
+    <ClInclude Include="include\parser_json\parser_json.messages.h" />
     <ClInclude Include="include\parser_json\parser_json.nest.h" />
     <ClInclude Include="include\parser_json\parser_json.number.h" />
     <ClInclude Include="include\parser_json\parser_json.space.h" />

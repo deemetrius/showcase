@@ -1,8 +1,8 @@
 #pragma once
 
 #include "parser_base.h"
-#include "../lib_log/log_base.h"
-#include "../lib_aux/string_join.h"
+#include "parser_json.messages.h"
+
 #include "../lib_aux/numeric_edges.h"
 
 #include <cstdint>
@@ -22,28 +22,6 @@ namespace parser {
   };
 
 
-  struct json_status : public is_status
-  {
-    enum status : index_t
-    {
-      n_ok = 0,
-
-      n_keyword_unknown,
-
-      n_string_unclosed,
-      n_string_unk_esc_seq,
-
-      n_array_unclosed,
-      n_array_unexpected_symbol,
-      n_array_internal_error,
-
-      n_map_unclosed,
-      n_map_unexpected_symbol,
-      n_map_internal_error,
-    };
-  };
-
-
   struct json_params
   {
     struct number_params
@@ -55,10 +33,6 @@ namespace parser {
     index_t tab_size{4};
     number_params number{};
   };
-
-
-  template <typename Log_string>
-  using json_log_pointer = lib_log::base<Log_string, index_t, ksi::files::position::data_type> *;
 
 
 } // end ns
@@ -90,7 +64,7 @@ namespace parser::detail {
     using conv_string = ksi::conv::from_string::to<string>;
     using map_make_function = std::map<string, fn_make>;
 
-    // data
+    // props
     json_log_pointer<Log_string> log{ nullptr };
     map_make_function const map_keywords{
       { conv_string{}("null"), &make_null },
@@ -114,6 +88,7 @@ namespace parser::detail {
     using pos_type = ksi::files::position::data_type;
     using parser_state = nest::parser_state;
     using log_conv_type = ksi::conv::from_string::to<Log_string>;
+    using log_messages = json_messages<Log_string>;
 
 
     class node_space;

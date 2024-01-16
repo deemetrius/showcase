@@ -41,7 +41,7 @@ namespace parser::detail {
       was_close     = 0,
     };
 
-    // data
+    // props
     array_type array;
     integer_type index{0};
     kind req{kind_open};
@@ -68,7 +68,31 @@ namespace parser::detail {
           req = was_open;
           return;
         }
-        expected.push_back( log_conv_type{}("T_OPEN_BRACKET") );
+        expected.push_back( log_conv_type{}("t_open_bracket") );
+      }
+
+      if( (req & kind_value) != 0 )
+      {
+        choicer_type const * it = find_from_all(st.params, ch);
+        if( it != nullptr )
+        {
+          st.add_node(
+            it->create(st.maker, st.params, st.position.get())
+          );
+          st.skip_read();
+          return;
+        }
+        expected.push_back(log_conv_type{}("t_value"));
+      }
+
+      if( (req & kind_separator) != 0 )
+      {
+        if( ch == info::comma )
+        {
+          req = was_separator;
+          return;
+        }
+        expected.push_back( log_conv_type{}("t_comma") );
       }
 
       if( (req & kind_close) != 0 )
@@ -79,41 +103,17 @@ namespace parser::detail {
           req = was_close;
           return;
         }
-        expected.push_back( log_conv_type{}("T_CLOSE_BRACKET") );
-      }
-
-      if( (req & kind_separator) != 0 )
-      {
-        if( ch == info::comma )
-        {
-          req = was_separator;
-          return;
-        }
-        expected.push_back( log_conv_type{}("T_COMMA") );
-      }
-
-      if( (req & kind_value) != 0 )
-      {
-        choicer_type const * it = find_from_all(st.params, ch);
-        if( it != nullptr )
-        {
-          st.add_node(
-            it->create( st.maker, st.params, st.position.get() )
-          );
-          st.skip_read();
-          return;
-        }
-        expected.push_back( log_conv_type{}("T_VALUE") );
+        expected.push_back(log_conv_type{}("t_close_bracket"));
       }
 
       // not match
-      st.data.log->inform(
-        lib_string::join<Log_string>(expected, ", ", "Wrong symbol found; Expected: "),
-        json_status::n_array_unexpected_symbol,
+      st.data.log->inform({
+        log_messages::array_unexpected(expected),
+        json_message_type::n_error,
         st.position.get()
-      );
+      });
       st.after_fn = &parser_state::action_unwind;
-      resp.change_status(json_status::n_array_unexpected_symbol);
+      resp.change_status(json_message_codes::n_array_unexpected_symbol);
     }
 
     result_type get_result(parser_state & st, response_type & resp) override
@@ -131,22 +131,22 @@ namespace parser::detail {
         return;
       }
 
-      st.data.log->inform(
-        log_conv_type{}("Internal array error"),
-        json_status::n_array_internal_error,
+      st.data.log->inform({
+        log_messages::array_internal(),
+        json_message_type::n_error,
         st.position.get()
-      );
-      resp.change_status(json_status::n_array_internal_error);
+      });
+      resp.change_status(json_message_codes::n_array_internal_error);
     }
 
     void input_ended(parser_state & st, response_type & resp) override
     {
-      st.data.log->inform(
-        log_conv_type{}("Unexpected end of json inside array."),
-        json_status::n_array_unclosed,
+      st.data.log->inform({
+        log_messages::array_unclosed(),
+        json_message_type::n_error,
         st.position.get()
-      );
-      resp.change_status(json_status::n_array_unclosed);
+      });
+      resp.change_status(json_message_codes::n_array_unclosed);
     }
   }; // end class
 
