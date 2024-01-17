@@ -133,7 +133,7 @@ namespace parser {
   using json_log_node = lib_log::node<
     lib_log::node_info<Log_string, index_t>,
     json_message_type,
-    ksi::files::position::data_type
+    ksi::files::position
   >;
 
   template <typename Log_string>

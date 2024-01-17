@@ -18,7 +18,7 @@ namespace parser {
 
   struct json_error_map_key_empty
   {
-    ksi::files::position::data_type pos{-1, 0, 0};
+    ksi::files::position pos{-1, 0, 0};
   };
 
 
@@ -44,7 +44,7 @@ namespace parser::detail {
   {
   public:
     using result_type = Maker::result_type;
-    using pos_type = ksi::files::position::data_type;
+    using pos_type = ksi::files::position;
 
     static result_type make_null(Maker * maker, pos_type pos)
     {
@@ -85,7 +85,7 @@ namespace parser::detail {
     using response_type = nest::response_type;
     using choicer_type = nest::choicer;
     using ptr_node = nest::ptr_node;
-    using pos_type = ksi::files::position::data_type;
+    using pos_type = ksi::files::position;
     using parser_state = nest::parser_state;
     using log_conv_type = ksi::conv::from_string::to<Log_string>;
     using log_messages = json_messages<Log_string>;

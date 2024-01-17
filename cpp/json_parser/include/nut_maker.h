@@ -11,7 +11,7 @@ namespace nut {
   struct nut_maker
   {
     using result_type = ssq::Object;
-    using pos_type = ksi::files::position::data_type;
+    using pos_type = ksi::files::position;
 
     static void show(pos_type pos)
     {

@@ -15,19 +15,19 @@ namespace parser {
 
   struct exception_skip_result
   {
-    ksi::files::position::data_type pos{-1, 0, 0};
+    ksi::files::position pos{-1, 0, 0};
   };
 
   struct exception_result_unexpected
   {
-    ksi::files::position::data_type pos{-1, 0, 0};
+    ksi::files::position pos{-1, 0, 0};
   };
 
 
   template <typename Result>
   struct parser_response
   {
-    using position_type = ksi::files::position::data_type;
+    using position_type = ksi::files::position;
 
     std::optional<Result> value;
     index_t status{0};
@@ -52,7 +52,7 @@ namespace parser::detail {
     using reader_type = std::unique_ptr< ksi::lib::reader<Char> >;
     using result_type = Maker::result_type;
     using response_type = parser_response<result_type>;
-    using pos_type = ksi::files::position::data_type;
+    using pos_type = ksi::files::position;
 
 
     struct parser_state;
@@ -201,7 +201,7 @@ namespace parser::detail {
       Maker * maker{ nullptr };
       chain nodes;
       reader_type reader;
-      ksi::files::position position;
+      ksi::files::position_counter position;
       action_type after_fn{ &action_none };
       read_action_type read_fn{ &read_action };
       Data data{};

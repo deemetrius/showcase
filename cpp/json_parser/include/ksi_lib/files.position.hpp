@@ -7,7 +7,16 @@ namespace ksi::files {
 
   using index_t = std::intptr_t;
 
-  class position
+
+  struct position
+  {
+    index_t char_pos;
+    index_t line;
+    index_t column;
+  };
+
+
+  class position_counter
   {
   protected:
     struct inner_type
@@ -39,18 +48,10 @@ namespace ksi::files {
       }
     };
 
-  public:
-    struct data_type
-    {
-      index_t char_pos;
-      index_t line;
-      index_t column; // calcultated
-    };
-
   protected:
     index_t tab_size{4};
     inner_type line_info{0, 0};
-    data_type pos{0, 1, -1};
+    position pos{0, 1, -1};
     bool was_cr{false};
 
     constexpr void pos_update(inner_type from)
@@ -59,13 +60,13 @@ namespace ksi::files {
     }
 
   public:
-    constexpr data_type const * operator -> ()
+    constexpr position const * operator -> ()
     {
       this->pos_update(line_info);
       return &this->pos;
     }
 
-    constexpr data_type get()
+    constexpr position get()
     {
       this->pos_update(line_info);
       return this->pos;
@@ -107,7 +108,7 @@ namespace ksi::files {
     }
 
   public:
-    position(index_t arg_tab_size)
+    position_counter(index_t arg_tab_size)
       : tab_size{ arg_tab_size }
     {}
 
