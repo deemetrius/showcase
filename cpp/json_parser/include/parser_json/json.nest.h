@@ -91,13 +91,14 @@ namespace parser::detail {
     using log_messages = json_messages<Log_string>;
 
 
+    class node_top;
     class node_space;
+
     class node_keyword;
     class node_number;
     class node_text;
     class node_array;
     class node_map;
-    class node_top;
 
 
     static choicer_type const * find_from_all(json_params const * params, Char ch);

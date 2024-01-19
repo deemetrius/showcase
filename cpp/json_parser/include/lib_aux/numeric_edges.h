@@ -25,15 +25,17 @@ namespace lib_number {
       }
     }
 
+    // props
     Integer prelimit;
     Integer last_digit; // not negative
 
+    // ctor
     constexpr numeric_edge(Integer limit)
       : prelimit{ limit / Radix}
       , last_digit{ calc_last_digit(limit) }
     {}
 
-    constexpr bool is_fit(Integer number, Integer digit) const
+    constexpr bool can_be_added(Integer number, Integer digit) const
     {
       if constexpr( Is_positive )
       {
@@ -72,8 +74,8 @@ namespace lib_number {
     {
       return (
         (number < 0) ?
-        edge_minus.is_fit(number, digit) :
-        edge_plus.is_fit(number, digit)
+        edge_minus.can_be_added(number, digit) :
+        edge_plus.can_be_added(number, digit)
       );
     }
   };

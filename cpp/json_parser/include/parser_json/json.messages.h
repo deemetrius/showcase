@@ -12,6 +12,7 @@ namespace parser {
   enum class json_message_type
   {
     n_notice,
+    n_warning,
     n_error,
   };
 
@@ -24,6 +25,9 @@ namespace parser {
       n_top_unexpected_symbol,
 
       n_keyword_unknown,
+
+      n_number_loss_of_digits,
+      n_number_huge,
 
       n_string_unclosed,
       n_string_unk_esc_seq,
@@ -49,14 +53,41 @@ namespace parser::detail {
     using log_node_info = lib_log::node_info<Log_string, index_t>;
     using log_conv_type = ksi::conv::from_string::to<Log_string>;
 
-    //
+    // number
+
+    static log_node_info number_too_much_digits(index_t n, int limit)
+    {
+      using namespace std::string_literals;
+
+      return {
+        json_message_codes::n_number_loss_of_digits,
+        log_conv_type{}(
+          "Number precision may be lost; Count of digits exceeds its limit: "s +
+          std::to_string(limit) + " (got "s + std::to_string(n) + ")"s
+        )
+      };
+    }
+
+    static log_node_info number_huge(index_t n)
+    {
+      using namespace std::string_literals;
+
+      return {
+        json_message_codes::n_number_huge,
+        log_conv_type{}(
+          "Number is too long; Huge count of digits occured: "s + std::to_string(n)
+        )
+      };
+    }
+
+    // string
 
     static log_node_info text_escape_sequence_notice()
     {
       return {
         json_message_codes::n_string_unk_esc_seq,
         log_conv_type{}(
-          "Unrecognized escape sequence; Slash char was ignored; Next char was used normally."
+          "Unrecognized escape sequence in string; Slash char was ignored; Next char was used normally."
         )
       };
     }

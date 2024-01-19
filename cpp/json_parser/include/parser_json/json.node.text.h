@@ -28,6 +28,7 @@ namespace parser::detail {
     using text_type = Maker::text;
     using stream_type = std::basic_stringstream<Char>;
 
+    // props
     stream_type stream;
     bool was_slash{ false };
     pos_type slash_pos{ -1, 0, 0 };

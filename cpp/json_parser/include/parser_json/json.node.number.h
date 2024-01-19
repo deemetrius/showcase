@@ -31,58 +31,88 @@ namespace parser::detail {
 
 
     using integer = std::intmax_t;
+    using integer_unsigned = std::uintmax_t;
     using integer_target = Maker::integer;
     using floating = Maker::floating;
 
+    using limits_float = std::numeric_limits<floating>;
+    using limits_fract = std::numeric_limits<integer_unsigned>;
 
     static constexpr integer
-      radix{10};
-    using edges = lib_number::numeric_edges<integer_target, integer, 10>;
+      radix{ 10 };
+    using edges = lib_number::numeric_edges<integer_target, integer, radix>;
+    using edge_fract_type = lib_number::numeric_edge<integer_unsigned, radix, true>;
+    static constexpr edge_fract_type edge_fract{ limits_fract::max() };
 
 
   protected:
-    integer before_dot{ 0 }; // can be nigative
-    integer after_dot{ 0 }; // can be nigative too
-    integer dot{ -1 }; // no dot from start
+    enum dot_status { no_dot = 0 };
+
+    // props
+    bool was_digit{ false };
+    bool was_non_zero{ false };
+    bool huge_digit_count{ false };
+    integer before_dot{ 0 }; // can be negative
+    integer_unsigned after_dot{ 0 };
+    integer_unsigned dot{ no_dot };
     integer sign{ 0 };
-    floating part{ 0.0 };
+    long double part{ 0.0 };
     bool is_float{ false };
     index_t count_digits{ 0 };
 
     using node_base::node_base; // base ctor
 
-    void on_digit(integer digit)
+    void on_digit(parser_state & st, integer digit)
     {
-      ++count_digits;
-      integer digit_adding{(sign < 0) ? (-digit) : digit};
-      if( dot < 0 )
+      was_digit = true;
+      if( digit != 0 ) { was_non_zero = true; }
+      if( huge_digit_count ) { return; }
+      if( was_non_zero )
       {
-        if(
-          (is_float == false) && edges::clarify(before_dot, digit)
-        ) {
+        if( count_digits == std::numeric_limits<index_t>::max() )
+        {
+          huge_digit_count = true;
+          st.data.log->inform({
+            log_messages::number_huge(count_digits),
+            json_message_type::n_warning,
+            st.position.get()
+          });
+          return;
+        }
+        ++count_digits;
+      }
+      integer digit_adding{(sign < 0) ? (-digit) : digit};
+      if( is_float == false )
+      {
+        if( edges::clarify(before_dot, digit) )
+        {
           before_dot *= radix;
           before_dot += digit_adding;
           part = static_cast<floating>(before_dot);
+          return;
         }
         else
         {
           is_float = true;
-          part *= radix;
-          part += digit_adding;
         }
       }
-      else
+      if( dot == no_dot )
+      {
+        part *= radix;
+        part += digit_adding;
+        return;
+      }
+      if( edge_fract.can_be_added(after_dot, digit) )
       {
         after_dot *= radix;
-        after_dot += digit_adding;
+        after_dot += digit;
         dot *= radix;
-        // maybe todo: check precision limit
       }
     }
 
     void on_dot(parser_state & st, response_type & resp, Char ch)
     {
-      if( dot > -1 )
+      if( dot != no_dot )
       {
         st.skip_read();
         st.after_fn = &parser_state::action_up_result;
@@ -111,7 +141,7 @@ namespace parser::detail {
 
       if( ksi::chars::is_digit(ch) )
       {
-        on_digit( ksi::chars::digit_of<integer>(ch) );
+        on_digit( st, ksi::chars::digit_of<integer>(ch) );
         return;
       }
 
@@ -139,7 +169,7 @@ namespace parser::detail {
       else
       {
         // dot_only as nan
-        if( st.params->number.nan_only_dot && (count_digits == 0) && (sign == 0) )
+        if( st.params->number.nan_only_dot && (was_digit == false) && (sign == 0) )
         {
           return st.maker->make_floating(
             this->start_pos,
@@ -148,7 +178,7 @@ namespace parser::detail {
         }
 
         // sign dot (no digits) as infinity
-        if( st.params->number.infinity_sign_dot && (count_digits == 0) && (sign != 0) )
+        if( st.params->number.infinity_sign_dot && (was_digit == false) && (sign != 0) )
         {
           return st.maker->make_floating(
             this->start_pos,
@@ -156,17 +186,34 @@ namespace parser::detail {
           );
         }
 
-        floating ret{part};
-
+        if( count_digits > (limits_float::digits10) )
         {
-          floating ret_frac{static_cast<Maker::floating>(after_dot)};
-          ret_frac /= dot;
-          ret += ret_frac;
+          st.data.log->inform({
+            log_messages::number_too_much_digits(count_digits, limits_float::digits10),
+            json_message_type::n_warning,
+            this->start_pos
+          });
+        }
+
+        long double ret{ part };
+
+        if( dot != no_dot )
+        {
+          long double ret_fractional{static_cast<long double>(after_dot)};
+          ret_fractional /= dot;
+          if( sign < 0 )
+          {
+            ret -= ret_fractional;
+          }
+          else
+          {
+            ret += ret_fractional;
+          }
         }
 
         return st.maker->make_floating(
           this->start_pos,
-          ret
+          static_cast<floating>(ret)
         );
       }
     }
