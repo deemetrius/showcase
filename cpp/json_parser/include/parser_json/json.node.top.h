@@ -1,12 +1,12 @@
 #pragma once
 
-#include "parser_json.space.h"
+#include "json.node.space.h"
 
-#include "parser_json.keyword.h"
-#include "parser_json.number.h"
-#include "parser_json.text.h"
-#include "parser_json.array.h"
-#include "parser_json.map.h"
+#include "json.node.keyword.h"
+#include "json.node.number.h"
+#include "json.node.text.h"
+#include "json.node.array.h"
+#include "json.node.map.h"
 
 namespace parser::detail {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser_json.top.h"
+#include "json.node.top.h"
 
 namespace parser {
 

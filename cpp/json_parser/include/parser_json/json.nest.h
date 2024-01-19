@@ -1,7 +1,7 @@
 #pragma once
 
 #include "parser_base.h"
-#include "parser_json.messages.h"
+#include "json.messages.h"
 
 #include "../lib_aux/numeric_edges.h"
 
@@ -98,7 +98,6 @@ namespace parser::detail {
     class node_array;
     class node_map;
     class node_top;
-    class state_json;
 
 
     static choicer_type const * find_from_all(json_params const * params, Char ch);
