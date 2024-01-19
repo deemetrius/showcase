@@ -4,9 +4,12 @@
 #include "include/parser_json/parser_json.h"
 #include "include/nut_maker.h"
 #include "include/lib_log/log_list.h"
+//#include "include/ksi_lib/integer_cast.hpp"
 
 int main()
 {
+  //std::cout << int{ ksi::conv::integer_cast<std::int8_t>(-160i16) } << '\n';
+  
   using text = std::string;
   using maker_type = nut::nut_maker<text>;
   using parser_type = parser::json<maker_type>;
@@ -41,6 +44,6 @@ int main()
   }
 
   std::cout << "seems done\n";
-
+  
   return 0;
 }
