@@ -27,6 +27,7 @@ namespace parser {
       n_keyword_unknown,
 
       n_number_loss_of_digits,
+      n_number_loss_of_fractional_digits,
       n_number_huge,
 
       n_string_unclosed,
@@ -61,9 +62,25 @@ namespace parser::detail {
 
       return {
         json_message_codes::n_number_loss_of_digits,
+        lib_string::concat< Log_string, std::initializer_list<std::string> >({
+          "Number precision may be lost; Count of digits exceeds its limit: "s,
+          std::to_string(limit),
+          " (got "s,
+          std::to_string(n),
+          ")"s
+        })
+      };
+    }
+
+    static log_node_info number_fractional_part_too_long(index_t limit)
+    {
+      using namespace std::string_literals;
+
+      return {
+        json_message_codes::n_number_loss_of_fractional_digits,
         log_conv_type{}(
-          "Number precision may be lost; Count of digits exceeds its limit: "s +
-          std::to_string(limit) + " (got "s + std::to_string(n) + ")"s
+          "Number precision is lost; Fractional part is too long; Limit: "s +
+          std::to_string(limit)
         )
       };
     }

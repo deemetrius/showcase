@@ -52,6 +52,7 @@ namespace parser::detail {
     bool was_digit{ false };
     bool was_non_zero{ false };
     bool huge_digit_count{ false };
+    bool ignore_fract{ false };
     integer before_dot{ 0 }; // can be negative
     integer_unsigned after_dot{ 0 };
     integer_unsigned dot{ no_dot };
@@ -59,6 +60,7 @@ namespace parser::detail {
     long double part{ 0.0 };
     bool is_float{ false };
     index_t count_digits{ 0 };
+    index_t count_digits_fract{ 0 };
 
     using node_base::node_base; // base ctor
 
@@ -102,23 +104,23 @@ namespace parser::detail {
         part += digit_adding;
         return;
       }
-      //if( edge_fract.can_be_added(after_dot, digit) )
+      if( ignore_fract ) { return; }
       if( edge_fract.can_be_added(dot, 0) )
       {
         after_dot *= radix;
         after_dot += digit;
         dot *= radix;
+        ++count_digits_fract;
       }
-      /*
       else
       {
+        ignore_fract = true;
         st.data.log->inform({
-          //log_messages::number_huge(count_digits),
-          //json_message_type::n_warning,
+          log_messages::number_fractional_part_too_long(count_digits_fract),
+          json_message_type::n_notice,
           st.position.get()
         });
       }
-      */
     }
 
     void on_dot(parser_state & st, response_type & resp, Char ch)
@@ -210,8 +212,6 @@ namespace parser::detail {
 
         if( dot != no_dot )
         {
-          //st.maker->make_integer( this->start_pos, static_cast<integer_target>(dot) );
-          std::cout << '{' << dot << ',' << after_dot << '}';
           long double ret_fractional{static_cast<long double>(after_dot)};
           ret_fractional /= dot;
           if( sign < 0 )
