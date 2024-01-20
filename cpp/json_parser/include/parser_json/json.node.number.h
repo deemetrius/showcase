@@ -46,7 +46,7 @@ namespace parser::detail {
 
 
   protected:
-    enum dot_status { no_dot = 0 };
+    enum dot_status : integer_unsigned { no_dot = 0 };
 
     // props
     bool was_digit{ false };
@@ -102,12 +102,23 @@ namespace parser::detail {
         part += digit_adding;
         return;
       }
-      if( edge_fract.can_be_added(after_dot, digit) )
+      //if( edge_fract.can_be_added(after_dot, digit) )
+      if( edge_fract.can_be_added(dot, 0) )
       {
         after_dot *= radix;
         after_dot += digit;
         dot *= radix;
       }
+      /*
+      else
+      {
+        st.data.log->inform({
+          //log_messages::number_huge(count_digits),
+          //json_message_type::n_warning,
+          st.position.get()
+        });
+      }
+      */
     }
 
     void on_dot(parser_state & st, response_type & resp, Char ch)
@@ -199,6 +210,8 @@ namespace parser::detail {
 
         if( dot != no_dot )
         {
+          //st.maker->make_integer( this->start_pos, static_cast<integer_target>(dot) );
+          std::cout << '{' << dot << ',' << after_dot << '}';
           long double ret_fractional{static_cast<long double>(after_dot)};
           ret_fractional /= dot;
           if( sign < 0 )
