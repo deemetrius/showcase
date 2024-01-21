@@ -22,7 +22,7 @@ namespace parser::detail {
       return std::make_unique<node_array>(start_pos, maker);
     }
 
-    static constexpr choicer_type choicer{&get_name, &condition, &create};
+    static constexpr choicer_type choicer{ &get_name, &condition, &create };
 
 
     using array_type = Maker::array;
@@ -43,8 +43,8 @@ namespace parser::detail {
 
     // props
     array_type array;
-    integer_type index{0};
-    kind req{kind_open};
+    integer_type index{ 0 };
+    kind req{ kind_open };
 
     // ctor
     node_array(pos_type pos, Maker * maker)

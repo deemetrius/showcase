@@ -22,7 +22,7 @@ namespace parser::detail {
       return std::make_unique<node_map>(start_pos, maker);
     }
 
-    static constexpr choicer_type choicer{&get_name, &condition, &create};
+    static constexpr choicer_type choicer{ &get_name, &condition, &create };
 
 
     using map_type = Maker::map;
@@ -106,10 +106,11 @@ namespace parser::detail {
 
       if( (req & kind_key) != 0 )
       {
-        if( node_text::condition(st.params, ch) )
+        choicer_type const * it = find_from_key(st.params, ch);
+        if( it != nullptr )
         {
           st.add_node(
-            node_text::create( st.maker, st.params, st.position.get() )
+            it->create(st.maker, st.params, st.position.get())
           );
           st.skip_read();
           return;

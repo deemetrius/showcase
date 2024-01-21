@@ -22,7 +22,7 @@ namespace parser::detail {
       return std::make_unique<node_keyword>(start_pos);
     }
 
-    static constexpr choicer_type choicer{&get_name, &condition, &create};
+    static constexpr choicer_type choicer{ &get_name, &condition, &create };
 
 
     // props

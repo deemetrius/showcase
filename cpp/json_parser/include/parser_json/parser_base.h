@@ -104,7 +104,6 @@ namespace parser::detail {
       fn_name name{ &get_name };
       fn_condition condition{ &condition_false };
       fn_create create{ &create_none };
-      index_t type{1};
 
 
       template <typename Array>

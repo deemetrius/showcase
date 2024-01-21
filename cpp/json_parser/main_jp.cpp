@@ -21,7 +21,7 @@ int main()
   std::string json = R"(
 {
   "items": [null, true, -9223372036854775808],
-  "123\" 1": +000000000005.00012500000000000000,
+  // "123\" 1": +000000000005.00012500000000000000,
   "a": null
 } )";
 
@@ -29,8 +29,9 @@ int main()
   maker_type maker{ &vm };
 
   parser_type parser;
-  parser.params.number.nan_only_dot = true;
-  parser.params.number.infinity_sign_dot = true;
+  parser.params.number.nan_from_dot_only = true;
+  parser.params.number.infinity_from_dot_signed = true;
+  parser.params.comments.single_line = true;
   parser_type::response_type resp = parser.from_string(maker, json, &log);
 
   std::cout << "src: " << json.size() << '\n';

@@ -27,7 +27,7 @@ namespace parser::detail {
       return std::make_unique<node_number>(start_pos);
     }
 
-    static constexpr choicer_type choicer{&get_name, &condition, &create};
+    static constexpr choicer_type choicer{ &get_name, &condition, &create };
 
 
     using integer = std::intmax_t;
@@ -182,7 +182,7 @@ namespace parser::detail {
       else
       {
         // dot_only as nan
-        if( st.params->number.nan_only_dot && (was_digit == false) && (sign == 0) )
+        if( st.params->number.nan_from_dot_only && (was_digit == false) && (sign == 0) )
         {
           return st.maker->make_floating(
             this->start_pos,
@@ -191,7 +191,7 @@ namespace parser::detail {
         }
 
         // sign dot (no digits) as infinity
-        if( st.params->number.infinity_sign_dot && (was_digit == false) && (sign != 0) )
+        if( st.params->number.infinity_from_dot_signed && (was_digit == false) && (sign != 0) )
         {
           return st.maker->make_floating(
             this->start_pos,

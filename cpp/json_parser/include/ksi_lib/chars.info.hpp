@@ -9,12 +9,13 @@ namespace ksi::chars {
   struct info<char>
   {
     static constexpr char
-      minus = '-'
-    , plus  = '+'
-    , colon = ':'
-    , comma = ','
-    , dot   = '.'
-    , slash = '\\'
+      minus    = '-'
+    , plus     = '+'
+    , divide   = '/'
+    , colon    = ':'
+    , comma    = ','
+    , dot      = '.'
+    , slash    = '\\'
 
     , digit_0  = '0'
     , digit_9  = '9'
@@ -51,12 +52,13 @@ namespace ksi::chars {
   struct info<wchar_t>
   {
     static constexpr wchar_t
-      minus = L'-'
-    , plus  = L'+'
-    , colon = L':'
-    , comma = L','
-    , dot   = L'.'
-    , slash = L'\\'
+      minus    = L'-'
+    , plus     = L'+'
+    , divide   = L'/'
+    , colon    = L':'
+    , comma    = L','
+    , dot      = L'.'
+    , slash    = L'\\'
 
     , digit_0 = L'0'
     , digit_9 = L'9'

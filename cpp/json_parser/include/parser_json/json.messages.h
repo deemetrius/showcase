@@ -24,6 +24,8 @@ namespace parser {
 
       n_top_unexpected_symbol,
 
+      n_comments_wrong_char,
+
       n_keyword_unknown,
 
       n_number_loss_of_digits,
@@ -53,6 +55,17 @@ namespace parser::detail {
   {
     using log_node_info = lib_log::node_info<Log_string, index_t>;
     using log_conv_type = ksi::conv::from_string::to<Log_string>;
+
+    //
+
+    template <typename Expected>
+    static log_node_info comments_wrong_char(Expected const & expected)
+    {
+      return {
+        json_message_codes::n_comments_wrong_char,
+        lib_string::join<Log_string>(expected, ", ", "Wrong symbol found inside comments; Expected: ")
+      };
+    }
 
     // number
 

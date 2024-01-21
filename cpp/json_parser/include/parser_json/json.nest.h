@@ -26,18 +26,32 @@ namespace parser {
   {
     struct number_params
     {
-      bool nan_only_dot{false};
-      bool infinity_sign_dot{false};
+      bool nan_from_dot_only{ false };
+      bool infinity_from_dot_signed{ false };
     };
 
-    index_t tab_size{4};
+    struct comment_params
+    {
+      bool single_line{ false };
+    };
+
+    index_t tab_size{ 4 };
     number_params number{};
+    comment_params comments{};
   };
 
 
 } // end ns
 namespace parser::detail {
 
+
+  template <typename Type, typename ... Args>
+  constexpr inline bool is_eq(Type value, Args ... args)
+  {
+    return (
+      (value == args) || ...
+    );
+  }
 
   template <typename Char, typename Maker, typename Log_string>
   class json_state_data
@@ -94,6 +108,7 @@ namespace parser::detail {
     class node_top;
     class node_space;
 
+    class node_comments;
     class node_keyword;
     class node_number;
     class node_text;
@@ -102,6 +117,7 @@ namespace parser::detail {
 
 
     static choicer_type const * find_from_all(json_params const * params, Char ch);
+    static choicer_type const * find_from_key(json_params const * params, Char ch);
   }; // end nest
 
 

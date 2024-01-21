@@ -2,6 +2,7 @@
 
 #include "json.node.space.h"
 
+#include "json.node.comments.h"
 #include "json.node.keyword.h"
 #include "json.node.number.h"
 #include "json.node.text.h"
@@ -20,7 +21,21 @@ namespace parser::detail {
         &node_number::choicer,
         &node_map::choicer,
         &node_array::choicer,
-        &node_keyword::choicer
+        &node_keyword::choicer,
+        &node_comments::choicer
+      },
+      params, ch
+    );
+  }
+
+  template <typename Char, typename Maker, typename Log_string>
+  inline json_nest<Char, Maker, Log_string>::choicer_type const *
+    json_nest<Char, Maker, Log_string>::find_from_key(json_params const * params, Char ch)
+  {
+    return choicer_type::template find< std::initializer_list<choicer_type const *> >(
+      {
+        &node_text::choicer,
+        &node_comments::choicer
       },
       params, ch
     );
