@@ -14,12 +14,9 @@ namespace parser::detail {
 
     static bool condition(json_params const * params, Char ch)
     {
-      return
-        ksi::chars::is_digit(ch)
-        || (ch == info::minus)
-        || (ch == info::plus)
-        || (ch == info::dot)
-      ;
+      return (
+        ksi::chars::is_digit(ch) || is_eq(ch, info::minus, info::plus, info::dot)
+      );
     }
 
     static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
@@ -30,93 +27,130 @@ namespace parser::detail {
     static constexpr choicer_type choicer{ &get_name, &condition, &create };
 
 
-    using integer = std::intmax_t;
-    using integer_unsigned = std::uintmax_t;
     using integer_target = Maker::integer;
-    using floating = Maker::floating;
+    using floating_target = Maker::floating;
 
-    using limits_float = std::numeric_limits<floating>;
-    using limits_fract = std::numeric_limits<integer_unsigned>;
-
-    static constexpr integer
-      radix{ 10 };
-    using edges = lib_number::numeric_edges<integer_target, integer, radix>;
-    using edge_fract_type = lib_number::numeric_edge<integer_unsigned, radix, true>;
-    static constexpr edge_fract_type edge_fract{ limits_fract::max() };
-
+    using limits_float = std::numeric_limits<floating_target>;
 
   protected:
-    enum dot_status : integer_unsigned { no_dot = 0 };
+    enum { initial_radix = 10 };
+
+    struct count_info
+    {
+      using type = std::uintmax_t;
+
+      // props
+
+      type total{ 0 }; // zero digits at beginning are skipped
+      type fract_only{ 0 };
+
+      bool is_full{ false };
+    };
+
+    struct fract_info
+    {
+      using type = std::uintmax_t;
+
+      enum divider_status : type { no_divider = 0 };
+
+      static constexpr lib_number::numeric_edge<type, initial_radix, true>
+        edge{ std::numeric_limits<type>::max() };
+
+      // props
+
+      type radix{ initial_radix };
+      type value{ 0 };
+      type divider{ no_divider };
+
+      bool is_full{ false };
+    };
+
+    struct int_part_info
+    {
+      using type_int = std::intmax_t;
+      using type_float = long double;
+
+      using edges = lib_number::numeric_edges<integer_target, type_int, initial_radix>;
+
+      enum kind { kind_int, kind_float };
+
+      // props
+
+      kind state{ kind_int };
+
+      type_int radix{ initial_radix };
+      type_int value_int{ 0 };
+      type_float value_float{ 0.0 };
+    };
+
+    enum sign_state : typename int_part_info::type_int
+    { sign_negative = -1, sign_absent = 0, sign_positive = +1 };
 
     // props
+
+    int_part_info::type_int signum{ sign_absent };
+    int_part_info int_part{};
+    fract_info fract{};
+    count_info count{};
     bool was_digit{ false };
     bool was_non_zero{ false };
-    bool huge_digit_count{ false };
-    bool ignore_fract{ false };
-    integer before_dot{ 0 }; // can be negative
-    integer_unsigned after_dot{ 0 };
-    integer_unsigned dot{ no_dot };
-    integer sign{ 0 };
-    long double part{ 0.0 };
-    bool is_float{ false };
-    index_t count_digits{ 0 };
-    index_t count_digits_fract{ 0 };
 
-    using node_base::node_base; // base ctor
+    // base ctor
+    using node_base::node_base; 
 
-    void on_digit(parser_state & st, integer digit)
+    void on_digit(parser_state & st, int_part_info::type_int digit)
     {
       was_digit = true;
       if( digit != 0 ) { was_non_zero = true; }
-      if( huge_digit_count ) { return; }
+      if( count.is_full ) { return; }
       if( was_non_zero )
       {
-        if( count_digits == std::numeric_limits<index_t>::max() )
+        if( count.total == std::numeric_limits<count_info::type>::max() )
         {
-          huge_digit_count = true;
+          count.is_full = true;
           st.data.log->inform({
-            log_messages::number_huge(count_digits),
+            log_messages::number_huge(count.total),
             json_message_type::n_warning,
             st.position.get()
           });
           return;
         }
-        ++count_digits;
+        ++count.total;
       }
-      integer digit_adding{(sign < 0) ? (-digit) : digit};
-      if( is_float == false )
+      typename int_part_info::type_int digit_adding{ (signum < 0) ? (-digit) : digit };
+      if( int_part.state == int_part_info::kind_int )
       {
-        if( edges::clarify(before_dot, digit) )
+        if( int_part_info::edges::clarify(int_part.value_int, digit) )
         {
-          before_dot *= radix;
-          before_dot += digit_adding;
-          part = static_cast<floating>(before_dot);
+          int_part.value_int *= int_part.radix;
+          int_part.value_int += digit_adding;
+          int_part.value_float = static_cast<floating_target>(int_part.value_int);
           return;
         }
         else
         {
-          is_float = true;
+          int_part.state = int_part_info::kind_float;
         }
       }
-      if( dot == no_dot )
+      if( fract.divider == fract_info::no_divider )
       {
-        part *= radix;
-        part += digit_adding;
+        int_part.value_float *= int_part.radix;
+        int_part.value_float += digit_adding;
         return;
       }
-      if( ignore_fract ) { return; }
-      if( edge_fract.can_be_added(dot, 0) )
+      if( fract.is_full ) { return; }
+      if( fract_info::edge.can_be_added(fract.divider, 0) )
       {
-        after_dot *= radix;
-        after_dot += digit;
-        dot *= radix;
-        ++count_digits_fract;
+        fract.value *= fract.radix;
+        fract.value += digit;
+        fract.divider *= fract.radix;
+        ++count.fract_only;
       }
       else
       {
-        ignore_fract = true;
+        fract.is_full = true;
         st.data.log->inform({
-          log_messages::number_fractional_part_too_long(count_digits_fract),
+          log_messages::number_fractional_part_too_long(count.fract_only),
           json_message_type::n_notice,
           st.position.get()
         });
@@ -125,14 +159,14 @@ namespace parser::detail {
 
     void on_dot(parser_state & st, response_type & resp, Char ch)
     {
-      if( dot != no_dot )
+      if( fract.divider != fract_info::no_divider )
       {
         st.skip_read();
         st.after_fn = &parser_state::action_up_result;
         return;
       }
-      dot = 1;
-      is_float = true;
+      fract.divider = 1;
+      int_part.state = int_part_info::kind_float;
     }
 
   public:
@@ -142,19 +176,19 @@ namespace parser::detail {
       {
         if( ch == info::plus )
         {
-          sign = +1;
+          signum = sign_positive;
           return;
         }
         if( ch == info::minus )
         {
-          sign = -1;
+          signum = sign_negative;
           return;
         }
       }
 
       if( ksi::chars::is_digit(ch) )
       {
-        on_digit( st, ksi::chars::digit_of<integer>(ch) );
+        on_digit( st, ksi::chars::digit_of<int_part_info::type_int>(ch) );
         return;
       }
 
@@ -171,50 +205,53 @@ namespace parser::detail {
 
     result_type get_result(parser_state & st, response_type & resp) override
     {
-      if( is_float == false )
+      if( int_part.state == int_part_info::kind_int )
       {
-        integer_target number = static_cast<integer_target>(before_dot);
-        return st.maker->make_integer(
-          this->start_pos,
-          number
-        );
+        integer_target number = static_cast<integer_target>(int_part.value_int);
+        return st.maker->make_integer(this->start_pos, number);
       }
       else
       {
         // dot_only as nan
-        if( st.params->number.nan_from_dot_only && (was_digit == false) && (sign == 0) )
+        if(
+          st.params->number.nan_from_dot_only &&
+          (was_digit == false) && (signum == sign_absent)
+        )
         {
           return st.maker->make_floating(
             this->start_pos,
-            std::numeric_limits<floating>::quiet_NaN()
+            std::numeric_limits<floating_target>::quiet_NaN()
           );
         }
 
         // sign dot (no digits) as infinity
-        if( st.params->number.infinity_from_dot_signed && (was_digit == false) && (sign != 0) )
+        if(
+          st.params->number.infinity_from_dot_signed &&
+          (was_digit == false) && (signum != sign_absent)
+        )
         {
           return st.maker->make_floating(
             this->start_pos,
-            std::numeric_limits<floating>::infinity() * sign
+            std::numeric_limits<floating_target>::infinity() * signum
           );
         }
 
-        if( count_digits > (limits_float::digits10) )
+        if( count.total > (limits_float::digits10) )
         {
           st.data.log->inform({
-            log_messages::number_too_much_digits(count_digits, limits_float::digits10),
+            log_messages::number_too_much_digits(count.total, limits_float::digits10),
             json_message_type::n_warning,
             this->start_pos
           });
         }
 
-        long double ret{ part };
+        long double ret{ int_part.value_float };
 
-        if( dot != no_dot )
+        if( fract.divider != fract_info::no_divider )
         {
-          long double ret_fractional{static_cast<long double>(after_dot)};
-          ret_fractional /= dot;
-          if( sign < 0 )
+          long double ret_fractional{static_cast<long double>(fract.value)};
+          ret_fractional /= fract.divider;
+          if( signum < 0 )
           {
             ret -= ret_fractional;
           }
@@ -226,7 +263,7 @@ namespace parser::detail {
 
         return st.maker->make_floating(
           this->start_pos,
-          static_cast<floating>(ret)
+          static_cast<floating_target>(ret)
         );
       }
     }

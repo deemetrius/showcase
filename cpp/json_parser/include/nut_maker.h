@@ -5,8 +5,6 @@
 namespace nut {
 
 
-  using integer = std::intptr_t;
-
   template <typename String>
   struct nut_maker
   {
