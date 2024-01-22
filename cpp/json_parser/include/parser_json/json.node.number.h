@@ -87,7 +87,6 @@ namespace parser::detail {
     { sign_negative = -1, sign_absent = 0, sign_positive = +1 };
 
     // props
-
     int_part_info::type_int signum{ sign_absent };
     int_part_info int_part{};
     fract_info fract{};
