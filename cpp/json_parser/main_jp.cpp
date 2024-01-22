@@ -8,7 +8,7 @@
 
 int main()
 {
-  //std::cout << int{ ksi::conv::integer_cast<std::int8_t>(-160i16) } << '\n';
+  //std::cout << ksi::conv::numbers::integer_cast<std::int16_t>(32769ui32).value << '\n';
   
   using text = std::string;
   using maker_type = nut::nut_maker<text>;

@@ -1,122 +1,112 @@
 #pragma once
 
 #include <concepts>
-#include <type_traits>
 #include <limits>
-#include <algorithm>
 
-namespace ksi::numbers {
+namespace ksi::conv::numbers {
 
 
-  // left == right
-  template<std::integral Left, std::integral Right>
-  constexpr bool cmp_equal(Left left, Right right) noexcept
+  struct min_keeper
   {
-    if constexpr( std::is_signed_v<Left> == std::is_signed_v<Right> )
-    { 
-      return (left == right);
-    }
-    else if constexpr( std::is_signed_v<Left> )
+    template <std::integral Type>
+    consteval operator Type () const
     {
-      return (left >= 0) && (std::make_unsigned_t<Left>{left} == right);
+      return std::numeric_limits<Type>::min();
     }
-    else
+
+    template <std::integral Type>
+    static consteval Type get()
     {
-      return (right >= 0) && (std::make_unsigned_t<Right>{right} == left);
+      return std::numeric_limits<Type>::min();
     }
-  }
+  };
+  constexpr inline min_keeper min_value{};
 
 
-  // left != right
-  template<class Left, class Right>
-  constexpr bool cmp_not_equal(Left left, Right right) noexcept
+  struct max_keeper
   {
-    return not cmp_equal(left, right);
-  }
-
-
-  // left < right
-  template<class Left, class Right>
-  constexpr bool cmp_less(Left left, Right right) noexcept
-  {
-    if constexpr( std::is_signed_v<Left> == std::is_signed_v<Right> )
+    template <std::integral Type>
+    consteval operator Type () const
     {
-      return (left < right);
+      return std::numeric_limits<Type>::max();
     }
-    else if constexpr( std::is_signed_v<Left> )
+
+    template <std::integral Type>
+    static consteval Type get()
     {
-      return (left < 0) || (std::make_unsigned_t<Left>(left) < right);
+      return std::numeric_limits<Type>::max();
     }
-    else
+  };
+  constexpr inline max_keeper max_value{};
+
+
+  template <typename Type>
+  consteval bool is_negative_allowed()
+  {
+    return (min_keeper::get<Type>() < 0);
+  }
+
+
+  template <typename Desired, typename Param>
+    requires (is_negative_allowed<Desired>() == is_negative_allowed<Param>())
+  consteval bool low_border_is_higher()
+  {
+    return (min_keeper::get<Desired>() > min_keeper::get<Param>());
+  }
+
+  template <typename Desired, typename Param>
+    requires (is_negative_allowed<Desired>() != is_negative_allowed<Param>())
+  consteval bool low_border_is_higher()
+  {
+    return (is_negative_allowed<Desired>() < is_negative_allowed<Param>());
+  }
+
+
+  enum class adapt_status
+  {
+    was_preserved,
+    was_lowered,
+    was_raised,
+  };
+
+  template <typename Type>
+  struct adapt_result
+  {
+    Type value;
+    adapt_status status;
+  };
+
+
+  template <typename Desired, typename Param>
+  constexpr adapt_result<Param> adapt(Param number)
+  {
+    if constexpr( low_border_is_higher<Desired, Param>() )
     {
-      return (right >= 0) && ( left < std::make_unsigned_t<Right>(right) );
-    }
-  }
-
-
-  // left > right
-  template<class Left, class Right>
-  constexpr bool cmp_greater(Left left, Right right) noexcept
-  {
-    return cmp_less(right, left);
-  }
-
-
-  // left <= right
-  template<class Left, class Right>
-  constexpr bool cmp_less_equal(Left left, Right right) noexcept
-  {
-    return not cmp_less(right, left);
-  }
-
-
-  // left >= right
-  template<class Left, class Right>
-  constexpr bool cmp_greater_equal(Left left, Right right) noexcept
-  {
-    return not cmp_less(left, right);
-  }
-
-
-  template<std::integral Result, std::integral Param>
-  constexpr bool in_range(Param number) noexcept
-  {
-    return (
-      cmp_greater_equal( number, std::numeric_limits<Result>::min() ) &&
-      cmp_less_equal( number, std::numeric_limits<Result>::max() )
-    );
-  }
-
-
-} // end ns
-namespace ksi::conv {
-
-
-  template <std::integral Result, std::integral Param>
-  constexpr Result integer_cast(Param number) noexcept
-  {
-    using lim_param = std::numeric_limits<Param>;
-    using lim_result = std::numeric_limits<Result>;
-
-    if constexpr( ksi::numbers::in_range<Result>( lim_param::min() ) )
-    {
-      if constexpr( ksi::numbers::in_range<Result>( lim_param::max() ) )
+      Param min = static_cast<Param>(min_keeper::get<Desired>());
+      if( number < min )
       {
-        return static_cast<Result>(number);
-      }
-      else
-      {
-        return static_cast<Result>(
-          std::min<Param>(lim_result::max(), number)
-        );
+        return { min, adapt_status::was_raised };
       }
     }
-    else
+
+    if constexpr( max_keeper::get<Desired>() < max_keeper::get<Param>() )
     {
-      return static_cast<Result>(
-        std::clamp<Param>( number, lim_result::min(), lim_result::max() )
-      );
+      Param max = static_cast<Param>(max_keeper::get<Desired>());
+      if( number > max )
+      {
+        return { max, adapt_status::was_lowered };
+      }
     }
+
+    return { number, adapt_status::was_preserved };
+  }
+
+
+  template <typename Result, typename Param>
+  constexpr adapt_result<Result> integer_cast(Param number)
+  {
+    adapt_result<Param> result = adapt<Result>(number);
+    return { static_cast<Result>(result.value), result.status };
   }
 
 
