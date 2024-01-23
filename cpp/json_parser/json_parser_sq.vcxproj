@@ -74,6 +74,7 @@
     <ClInclude Include="include\ksi_lib\lib.string_reader.hpp" />
     <ClInclude Include="include\nut_maker.h" />
     <ClInclude Include="include\parser_json\json.node.comments.h" />
+    <ClInclude Include="include\parser_json\json.path.h" />
     <ClInclude Include="include\parser_json\parser_base.h" />
     <ClInclude Include="include\parser_json\json.node.keyword.h" />
     <ClInclude Include="include\parser_json\json.node.map.h" />

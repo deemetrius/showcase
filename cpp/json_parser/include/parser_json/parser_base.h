@@ -118,24 +118,42 @@ namespace parser::detail {
     };
 
 
-    struct parser_state
+    struct read_actions
     {
-      using chain = std::list<ptr_node>;
-
-      // read actions
-
-      static bool read_action(parser_state & st, Char & ch)
+      static bool try_read_next(read_actions & st, Char & ch)
       {
         if( st.reader->is_end() ) { return true; }
         ch = st.reader->read_char();
         return false;
       }
 
-      static bool read_action_none(parser_state & st, Char & ch)
+      static bool keep_current(read_actions & st, Char & ch)
       {
-        st.read_fn = &read_action;
+        st.read_fn = &try_read_next;
         return false;
       }
+
+      using fn_type = decltype(&try_read_next);
+
+      // props
+      reader_type reader;
+      fn_type read_fn{ &try_read_next };
+
+      void skip_read()
+      {
+        read_fn = &keep_current;
+      }
+
+      bool is_recognized() const
+      {
+        return (read_fn == &read_actions::try_read_next);
+      }
+    };
+
+    struct parser_state
+      : public read_actions
+    {
+      using chain = std::list<ptr_node>;
 
       // post actions
 
@@ -169,9 +187,6 @@ namespace parser::detail {
         st.nodes.clear();
       }
 
-      // action types
-
-      using read_action_type = decltype( &read_action );
       using action_type = decltype( &action_none );
 
       static void inner_result_up(parser_state & st, response_type & resp)
@@ -199,32 +214,25 @@ namespace parser::detail {
       Params const * params{ nullptr };
       Maker * maker{ nullptr };
       chain nodes;
-      reader_type reader;
       ksi::files::position_counter position;
       action_type after_fn{ &action_none };
-      read_action_type read_fn{ &read_action };
       Data data{};
 
       // ctor
       template <typename ... Args_data>
       parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params, Args_data ... args_data)
-        : params{ h_params }
+        : read_actions{ std::move(p_reader) }
+        , params{ h_params }
         , maker{ p_maker }
-        , reader{ std::move(p_reader) }
         , position{ h_params->tab_size }
         , data{ args_data ... }
       {}
-
-      void skip_read()
-      {
-        read_fn = &read_action_none;
-      }
 
       void parse(response_type & resp, Char ch)
       {
         ptr_node & node = nodes.back();
         node->parse(*this, resp, ch);
-        if( is_recognized() )
+        if( this->is_recognized() )
         {
           position.recognized(ch);
         }
@@ -257,11 +265,6 @@ namespace parser::detail {
         if( nodes.empty() ) { return; }
         nodes.back()->input_ended(*this, resp);
         action_unwind(*this, resp);
-      }
-
-      bool is_recognized() const
-      {
-        return (read_fn == &read_action);
       }
 
       void add_node(ptr_node node)
