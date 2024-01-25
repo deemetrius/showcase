@@ -11,6 +11,7 @@ namespace parser {
 
 
   using index_t = std::ptrdiff_t;
+  using size_t = std::size_t;
 
 
   struct exception_skip_result

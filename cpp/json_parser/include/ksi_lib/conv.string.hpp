@@ -4,7 +4,7 @@
 
 namespace ksi::conv {
 
-  struct from_string
+  struct string_cast
   {
     template <typename Result>
     struct to;
@@ -12,9 +12,15 @@ namespace ksi::conv {
 
 
   template <>
-  struct from_string::to<std::wstring>
+  struct string_cast::to<std::wstring>
   {
     using result_type = std::wstring;
+
+    template <std::integral Number>
+    result_type operator () (Number param) const
+    {
+      return std::to_wstring(param);
+    }
 
     result_type operator () (std::wstring param) const
     {
@@ -44,9 +50,15 @@ namespace ksi::conv {
 
 
   template <>
-  struct from_string::to<std::string>
+  struct string_cast::to<std::string>
   {
     using result_type = std::string;
+
+    template <std::integral Number>
+    result_type operator () (Number param) const
+    {
+      return std::to_string(param);
+    }
 
     result_type operator () (std::string param) const
     {

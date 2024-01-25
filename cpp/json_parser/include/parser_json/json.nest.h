@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser_base.h"
+#include "json.path.h"
 #include "json.messages.h"
 
 #include "../lib_aux/numeric_edges.h"
@@ -8,8 +8,6 @@
 #include <cstdint>
 #include <initializer_list>
 #include <string>
-#include <sstream>
-#include <vector>
 #include <map>
 #include <limits>
 
@@ -75,7 +73,7 @@ namespace parser::detail {
     using fn_make = decltype(&make_null);
 
     using string = std::basic_string<Char>;
-    using conv_string = ksi::conv::from_string::to<string>;
+    using conv_string = ksi::conv::string_cast::to<string>;
     using map_make_function = std::map<string, fn_make>;
 
     // props
@@ -101,7 +99,7 @@ namespace parser::detail {
     using ptr_node = nest::ptr_node;
     using pos_type = ksi::files::position;
     using parser_state = nest::parser_state;
-    using log_conv_type = ksi::conv::from_string::to<Log_string>;
+    using log_conv_type = ksi::conv::string_cast::to<Log_string>;
     using log_messages = json_messages<Log_string>;
 
 

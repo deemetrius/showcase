@@ -3,7 +3,6 @@
 #include "../lib_log/log_base.h"
 #include "../lib_log/log_node.h"
 
-#include "../ksi_lib/conv.string.hpp"
 #include "../lib_aux/string_join.h"
 
 namespace parser {
@@ -54,7 +53,7 @@ namespace parser::detail {
   struct json_messages
   {
     using log_node_info = lib_log::node_info<Log_string, index_t>;
-    using log_conv_type = ksi::conv::from_string::to<Log_string>;
+    using log_conv_type = ksi::conv::string_cast::to<Log_string>;
 
     //
 

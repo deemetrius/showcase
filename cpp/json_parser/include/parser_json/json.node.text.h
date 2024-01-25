@@ -110,7 +110,7 @@ namespace parser::detail {
     {
       return st.maker->make_text(
         this->start_pos,
-        ksi::conv::from_string::to<text_type>{}(stream.str())
+        ksi::conv::string_cast::to<text_type>{}(stream.str())
       );
     }
 

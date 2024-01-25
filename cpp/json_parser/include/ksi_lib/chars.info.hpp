@@ -16,6 +16,7 @@ namespace ksi::chars {
     , comma    = ','
     , dot      = '.'
     , slash    = '\\'
+    , sharp    = '#'
 
     , digit_0  = '0'
     , digit_9  = '9'
@@ -59,6 +60,7 @@ namespace ksi::chars {
     , comma    = L','
     , dot      = L'.'
     , slash    = L'\\'
+    , sharp    = L'#'
 
     , digit_0 = L'0'
     , digit_9 = L'9'

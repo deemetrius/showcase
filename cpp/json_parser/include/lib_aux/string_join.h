@@ -9,7 +9,7 @@ namespace lib_string {
   template <typename Result, typename Prefix, typename Strings, typename Delimiter>
   Result join(Strings const & strings, Delimiter delimiter, Prefix prefix = {})
   {
-    ksi::conv::from_string::to<Result> conv{};
+    ksi::conv::string_cast::to<Result> conv{};
 
     if( strings.size() == 0 ) { return conv(prefix); }
 
@@ -34,7 +34,7 @@ namespace lib_string {
   {
     if( strings.size() == 0 ) { return {}; }
 
-    ksi::conv::from_string::to<Result> conv{};
+    ksi::conv::string_cast::to<Result> conv{};
 
     std::basic_stringstream<typename Result::value_type> stream;
 

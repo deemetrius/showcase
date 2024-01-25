@@ -9,10 +9,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{F0372D08-7C44-4D5B-B83D-0D1FAF8B2663}</ProjectGuid>
+    <ProjectGuid>{CE69E3F6-F65C-47D3-89A0-D0062A9CCE81}</ProjectGuid>
     <RootNamespace>scriptcallbacks</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>plain_callbacks</ProjectName>
+    <ProjectName>test_table_keys</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -32,9 +32,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir).out\$(ProjectName)\$(Configuration).$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir).out\$(ProjectName)\$(Configuration).$(Platform)\intermediate\</IntDir>
-    <LibraryPath>$(SolutionDir).out\$(ProjectName)\$(Configuration).$(Platform)\;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir).out\msvc2022.$(PlatformShortName).$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).out\msvc2022.$(PlatformShortName).$(Configuration)\_$(ProjectName)\</IntDir>
+    <LibraryPath>$(SolutionDir).out\msvc2022.$(PlatformShortName).$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -48,7 +48,7 @@
       <EnableModules>true</EnableModules>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
-      <AdditionalIncludeDirectories>$(SolutionDir)_libs\simplesquirrel\libs\squirrel\include;$(SolutionDir)_libs\simplesquirrel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)_libs\simplesquirrel\include;$(SolutionDir)_libs\simplesquirrel\libs\squirrel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -59,12 +59,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main_plain.cpp" />
-    <ClCompile Include="include\connector_squirrel.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\interface.hpp" />
-    <ClInclude Include="include\interface_tester.hpp" />
+    <ClCompile Include="..\..\src\tests\test_table_keys.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
