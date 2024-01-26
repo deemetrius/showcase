@@ -13,8 +13,8 @@ namespace ksi::lib {
   struct string_reader : public reader<typename String::value_type>
   {
     using text = const String;
-    using iterator = String::const_iterator;
-    using char_type = String::value_type;
+    using iterator = typename String::const_iterator;
+    using char_type = typename String::value_type;
     using char_info = ksi::chars::info<char_type>;
 
     text string;

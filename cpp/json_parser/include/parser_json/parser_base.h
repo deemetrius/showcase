@@ -51,7 +51,7 @@ namespace parser::detail {
   struct nest_base
   {
     using reader_type = std::unique_ptr< ksi::lib::reader<Char> >;
-    using result_type = Maker::result_type;
+    using result_type = typename Maker::result_type;
     using response_type = parser_response<result_type>;
     using pos_type = ksi::files::position;
 
