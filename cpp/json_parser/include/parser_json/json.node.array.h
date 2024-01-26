@@ -17,9 +17,14 @@ namespace parser::detail {
       return (ch == info::bracket_open);
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
-      return std::make_unique<node_array>(start_pos, maker);
+      return std::make_unique<node_array>(start_pos, maker, data.path);
     }
 
     static constexpr choicer_type choicer{ &get_name, &condition, &create };
@@ -47,9 +52,9 @@ namespace parser::detail {
     kind req{ kind_open };
 
     // ctor
-    node_array(pos_type pos, Maker * maker)
+    node_array(pos_type pos, Maker * maker, path_type const & path)
       : node_base{pos}
-      , array{maker->make_array(pos)}
+      , array{maker->make_array(path, pos)}
     {}
 
     void parse(parser_state & st, response_type & resp, Char ch) override
@@ -76,8 +81,9 @@ namespace parser::detail {
         choicer_type const * it = find_from_all(st.params, ch);
         if( it != nullptr )
         {
+          st.data.path.append(index);
           st.add_node(
-            it->create(st.maker, st.params, st.position.get())
+            it->create(st.maker, st.params, st.position.get(), st.data)
           );
           st.skip_read();
           return;
@@ -125,7 +131,8 @@ namespace parser::detail {
     {
       if( (req & kind_value) != 0 )
       {
-        st.maker->array_insert(array, index, result);
+        st.maker->array_insert(array, index, result, st.data.path);
+        st.data.path.shift_up();
         req = was_value;
         ++index;
         return;

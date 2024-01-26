@@ -19,7 +19,12 @@ namespace parser::detail {
       );
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
       return std::make_unique<node_number>(start_pos);
     }
@@ -207,7 +212,7 @@ namespace parser::detail {
       if( int_part.state == int_part_info::kind_int )
       {
         integer_target number = static_cast<integer_target>(int_part.value_int);
-        return st.maker->make_integer(this->start_pos, number);
+        return st.maker->make_integer(st.data.path, this->start_pos, number);
       }
       else
       {
@@ -218,6 +223,7 @@ namespace parser::detail {
         )
         {
           return st.maker->make_floating(
+            st.data.path,
             this->start_pos,
             std::numeric_limits<floating_target>::quiet_NaN()
           );
@@ -230,6 +236,7 @@ namespace parser::detail {
         )
         {
           return st.maker->make_floating(
+            st.data.path,
             this->start_pos,
             std::numeric_limits<floating_target>::infinity() * signum
           );
@@ -261,6 +268,7 @@ namespace parser::detail {
         }
 
         return st.maker->make_floating(
+          st.data.path,
           this->start_pos,
           static_cast<floating_target>(ret)
         );

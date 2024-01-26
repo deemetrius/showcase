@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ksi_lib/files.position.hpp"
+#include "parser_std.h"
 #include "../ksi_lib/lib.string_reader.hpp"
 
 #include <optional>
@@ -8,10 +8,6 @@
 #include <list>
 
 namespace parser {
-
-
-  using index_t = std::ptrdiff_t;
-  using size_t = std::size_t;
 
 
   struct exception_skip_result
@@ -94,7 +90,7 @@ namespace parser::detail {
       static bool condition_false(Params const * params, Char ch)
       { return false; }
 
-      static ptr_node create_none(Maker * maker, Params const * params, pos_type start_pos)
+      static ptr_node create_none(Maker * maker, Params const * params, pos_type start_pos, Data const & data)
       { return std::make_unique<node_base>(start_pos); }
 
       using fn_name = decltype( &get_name );
@@ -221,7 +217,9 @@ namespace parser::detail {
 
       // ctor
       template <typename ... Args_data>
-      parser_state(Maker * p_maker, reader_type p_reader, Params const * h_params, Args_data ... args_data)
+      parser_state(
+        Maker * p_maker, reader_type p_reader, Params const * h_params, Args_data ... args_data
+      )
         : read_actions{ std::move(p_reader) }
         , params{ h_params }
         , maker{ p_maker }

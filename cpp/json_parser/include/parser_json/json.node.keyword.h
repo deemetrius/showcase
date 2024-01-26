@@ -17,7 +17,12 @@ namespace parser::detail {
       return ksi::chars::is_letter_english_small(ch);
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
       return std::make_unique<node_keyword>(start_pos);
     }
@@ -52,7 +57,7 @@ namespace parser::detail {
         it = st.data.map_keywords.begin();
         resp.change_status(json_message_codes::n_keyword_unknown);
       }
-      return it->second(st.maker, this->start_pos);
+      return it->second(st.maker, this->start_pos, st.data.path);
     }
   };
 

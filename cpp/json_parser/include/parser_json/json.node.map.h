@@ -17,9 +17,14 @@ namespace parser::detail {
       return (ch == info::brace_open);
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
-      return std::make_unique<node_map>(start_pos, maker);
+      return std::make_unique<node_map>(start_pos, maker, data.path);
     }
 
     static constexpr choicer_type choicer{ &get_name, &condition, &create };
@@ -49,9 +54,9 @@ namespace parser::detail {
     kind req{ kind_open };
     std::optional<result_type> key{};
 
-    node_map(pos_type pos, Maker * maker)
+    node_map(pos_type pos, Maker * maker, path_type const & path)
       : node_base{ pos }
-      , map{ maker->make_map(pos) }
+      , map{ maker->make_map(path, pos) }
     {}
 
     void parse(parser_state & st, response_type & resp, Char ch) override
@@ -110,7 +115,7 @@ namespace parser::detail {
         if( it != nullptr )
         {
           st.add_node(
-            it->create(st.maker, st.params, st.position.get())
+            it->create(st.maker, st.params, st.position.get(), st.data)
           );
           st.skip_read();
           return;
@@ -124,7 +129,7 @@ namespace parser::detail {
         if( it != nullptr )
         {
           st.add_node(
-            it->create( st.maker, st.params, st.position.get() )
+            it->create(st.maker, st.params, st.position.get(), st.data)
           );
           st.skip_read();
           return;
@@ -162,7 +167,8 @@ namespace parser::detail {
         {
           throw json_error_map_key_empty{st.position.get()};
         }
-        st.maker->map_insert(map, key.value(), result);
+        st.maker->map_insert(map, key.value(), result, st.data.path);
+        st.data.path.shift_up();
         key.reset();
         req = was_value;
         return;

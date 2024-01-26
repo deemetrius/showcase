@@ -1,12 +1,13 @@
 #pragma once
 
-#include "parser_base.h"
+#include "parser_std.h"
 #include "../ksi_lib/conv.string.hpp"
 
 #include <vector>
 #include <sstream>
 
 namespace parser {
+
 
   struct flags_has_all
   {
@@ -44,6 +45,7 @@ namespace parser {
     using char_type = String::value_type;
     using conv_type = ksi::conv::string_cast::to<String>;
     using char_info = ksi::chars::info<char_type>;
+    using flags_type = size_t;
 
     enum section_type { n_index, n_key };
 
@@ -52,7 +54,7 @@ namespace parser {
       index_t depth;
       section_type type;
       Integer index;
-      String key;
+      String key{};
 
       constexpr bool is_index() const
       {
@@ -68,19 +70,39 @@ namespace parser {
     // props
     std::vector<section> steps;
 
+    index_t get_depth() const
+    {
+      return std::ssize(steps);
+    }
+
+    void append(Integer index)
+    {
+      steps.emplace_back(get_depth() + 1, n_index, index);
+    }
+
+    void append(String key)
+    {
+      steps.emplace_back(get_depth() + 1, n_key, -1, key);
+    }
+
+    void shift_up()
+    {
+      steps.pop_back();
+    }
+
     /*
       (root)     -
       (sample)   1:some_key_1 2# 3:some_key_3
       (match?)   2:1 3~^some_key.\d+$
     */
 
-    enum flags_t : size_t
+    enum flags_t : flags_type
     {
       f_none = 0,
       f_index_empty = (1 << 0),
     };
 
-    String full_path(size_t flags) const
+    String full_path_string(flags_type flags) const
     {
       conv_type conv{};
       if( steps.empty() ) { return conv("-"); }
@@ -91,6 +113,7 @@ namespace parser {
       for( section const & it : steps )
       {
         ++depth;
+        if( depth > 1 ) { stream << char_info::space; }
         stream << conv(depth);
         if( it.is_key() )
         {

@@ -87,6 +87,7 @@
     <ClInclude Include="include\parser_json\json.node.text.h" />
     <ClInclude Include="include\parser_json\json.node.top.h" />
     <ClInclude Include="include\lib_aux\string_join.h" />
+    <ClInclude Include="include\parser_json\parser_std.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

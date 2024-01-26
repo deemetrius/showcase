@@ -17,7 +17,7 @@ namespace parser::detail {
   {
     return choicer_type::template find< std::initializer_list<choicer_type const *> >(
       {
-        &node_text::choicer,
+        &node_text<false>::choicer,
         &node_number::choicer,
         &node_map::choicer,
         &node_array::choicer,
@@ -34,7 +34,7 @@ namespace parser::detail {
   {
     return choicer_type::template find< std::initializer_list<choicer_type const *> >(
       {
-        &node_text::choicer,
+        &node_text<true>::choicer,
         &node_comments::choicer
       },
       params, ch
@@ -46,9 +46,10 @@ namespace parser::detail {
     : public node_base
   {
   protected:
-
+    // props
     index_t count_tokens{0};
 
+    // base ctor
     using node_base::node_base;
 
   public:
@@ -79,7 +80,7 @@ namespace parser::detail {
       }
       ++count_tokens;
       st.add_node(
-        it->create( st.maker, st.params, st.position.get() )
+        it->create(st.maker, st.params, st.position.get(), st.data)
       );
       st.skip_read();
       
@@ -89,6 +90,7 @@ namespace parser::detail {
     {
       throw exception_skip_result{ this->start_pos };
       return st.maker->make_null(
+        st.data.path,
         this->start_pos
       );
     }

@@ -21,9 +21,14 @@ namespace parser::detail {
       return (ch == info::divide);
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
-      return std::make_unique<node_comments>(pos);
+      return std::make_unique<node_comments>(start_pos);
     }
 
     static constexpr choicer_type choicer{ &get_name, &condition, &create };
@@ -106,6 +111,7 @@ namespace parser::detail {
     {
       throw exception_skip_result{ this->start_pos };
       return st.maker->make_null(
+        st.data.path,
         this->start_pos
       );
     }

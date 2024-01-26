@@ -1,6 +1,7 @@
 #pragma once
 
 #include "json.path.h"
+#include "parser_base.h"
 #include "json.messages.h"
 
 #include "../lib_aux/numeric_edges.h"
@@ -57,18 +58,19 @@ namespace parser::detail {
   public:
     using result_type = Maker::result_type;
     using pos_type = ksi::files::position;
+    using path_type = typename Maker::path_type;
 
-    static result_type make_null(Maker * maker, pos_type pos)
+    static result_type make_null(Maker * maker, pos_type pos, path_type const & path)
     {
-      return maker->make_null(pos);
+      return maker->make_null(path, pos);
     }
-    static result_type make_false(Maker * maker, pos_type pos)
+    static result_type make_false(Maker * maker, pos_type pos, path_type const & path)
     {
-      return maker->make_bool(pos, false);
+      return maker->make_bool(path, pos, false);
     }
-    static result_type make_true(Maker * maker, pos_type pos)
+    static result_type make_true(Maker * maker, pos_type pos, path_type const & path)
     {
-      return maker->make_bool(pos, true);
+      return maker->make_bool(path, pos, true);
     }
     using fn_make = decltype(&make_null);
 
@@ -78,6 +80,7 @@ namespace parser::detail {
 
     // props
     json_log_pointer<Log_string> log{ nullptr };
+    path_type path{};
     map_make_function const map_keywords{
       { conv_string{}("null"), &make_null },
       { conv_string{}("false"), &make_false },
@@ -101,6 +104,7 @@ namespace parser::detail {
     using parser_state = nest::parser_state;
     using log_conv_type = ksi::conv::string_cast::to<Log_string>;
     using log_messages = json_messages<Log_string>;
+    using path_type = typename Maker::path_type;
 
 
     class node_top;
@@ -109,6 +113,7 @@ namespace parser::detail {
     class node_comments;
     class node_keyword;
     class node_number;
+    template <bool Is_key>
     class node_text;
     class node_array;
     class node_map;

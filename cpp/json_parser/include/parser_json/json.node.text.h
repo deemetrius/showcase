@@ -6,6 +6,7 @@ namespace parser::detail {
 
 
   template <typename Char, typename Maker, typename Log_string>
+  template <bool Is_key>
   class json_nest<Char, Maker, Log_string>::node_text
     : public node_base
   {
@@ -17,7 +18,12 @@ namespace parser::detail {
       return (ch == info::quote_double);
     }
 
-    static ptr_node create(Maker * maker, json_params const * params, pos_type start_pos)
+    static ptr_node create(
+      Maker * maker,
+      json_params const * params,
+      pos_type start_pos,
+      state_data const & data
+    )
     {
       return std::make_unique<node_text>(start_pos);
     }
@@ -108,10 +114,22 @@ namespace parser::detail {
     
     result_type get_result(parser_state & st, response_type & resp) override
     {
-      return st.maker->make_text(
-        this->start_pos,
-        ksi::conv::string_cast::to<text_type>{}(stream.str())
-      );
+      if constexpr( Is_key )
+      {
+        return st.maker->make_text_key(
+          st.data.path,
+          this->start_pos,
+          ksi::conv::string_cast::to<text_type>{}(stream.str())
+        );
+      }
+      else
+      {
+        return st.maker->make_text(
+          st.data.path,
+          this->start_pos,
+          ksi::conv::string_cast::to<text_type>{}(stream.str())
+        );
+      }
     }
 
     void input_ended(parser_state & st, response_type & resp) override
