@@ -59,8 +59,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\tests\test_table_keys.cpp" />
     <ClCompile Include="main_jp.cpp" />
+    <ClCompile Include="test_table_keys.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ksi_lib\integer_cast.hpp" />
