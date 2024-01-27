@@ -65,6 +65,7 @@
   <ItemGroup>
     <ClInclude Include="include\ksi_lib\integer_cast.hpp" />
     <ClInclude Include="include\ksi_lib\conv.string.hpp" />
+    <ClInclude Include="include\lib_aux\flags_check.h" />
     <ClInclude Include="include\lib_aux\numeric_edges.h" />
     <ClInclude Include="include\lib_log\log_base.h" />
     <ClInclude Include="include\lib_log\log_list.h" />

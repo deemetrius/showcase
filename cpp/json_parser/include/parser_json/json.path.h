@@ -2,42 +2,13 @@
 
 #include "parser_std.h"
 #include "../ksi_lib/conv.string.hpp"
+#include "../lib_aux/flags_check.h"
 
 #include <vector>
 #include <sstream>
 
 namespace parser {
 
-
-  struct flags_has_all
-  {
-    size_t value{ 0 };
-  };
-
-  struct flags_has_any
-  {
-    size_t value{ 0 };
-  };
-
-  struct flags_absent_all
-  {
-    size_t value{ 0 };
-  };
-
-  constexpr inline bool operator * (size_t flags, flags_has_all has)
-  {
-    return ((flags & has.value) == has.value);
-  }
-
-  constexpr inline bool operator * (size_t flags, flags_has_any has)
-  {
-    return ((flags & has.value) != 0);
-  }
-
-  constexpr inline bool operator * (size_t flags, flags_absent_all has)
-  {
-    return ((flags & has.value) == 0);
-  }
 
   template <typename String, typename Integer>
   struct json_path
@@ -123,7 +94,7 @@ namespace parser {
         else
         {
           stream << char_info::sharp;
-          if( flags * flags_absent_all{ f_index_empty } )
+          if( lib_bits::flags_absent(flags, f_index_empty) )
           {
             stream << conv(it.index);
           }

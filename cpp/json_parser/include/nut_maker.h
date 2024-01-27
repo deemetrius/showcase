@@ -118,14 +118,14 @@ namespace nut {
 
     void array_insert(array & ar, integer index, result_type value, path_type const & path)
     {
-      std::wcout << path.full_path_string(path_flags) << '\n';
+      std::wcout << "path: " << path.full_path_string(path_flags) << '\n';
       std::cout << "array append: " << index << '\n';
       ar.push(value);
     }
 
     void map_insert(map & mp, result_type key, result_type value, path_type const & path)
     {
-      std::wcout << path.full_path_string(path_flags) << '\n';
+      std::wcout << "path: " << path.full_path_string(path_flags) << '\n';
       std::cout << "map insert: ";
       if( key.getType() != ssq::Type::STRING )
       {
