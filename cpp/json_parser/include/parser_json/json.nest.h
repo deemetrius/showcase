@@ -102,6 +102,7 @@ namespace parser::detail {
     using ptr_node = nest::ptr_node;
     using pos_type = ksi::files::position;
     using parser_state = nest::parser_state;
+    using chain_actions = nest::chain_actions;
     using log_conv_type = ksi::conv::string_cast::to<Log_string>;
     using log_messages = json_messages<Log_string>;
     using path_type = typename Maker::path_type;

@@ -82,7 +82,7 @@ namespace parser::detail {
       {
         if( ch == info::brace_close )
         {
-          st.after_fn = &parser_state::action_up_result;
+          st.after_fn = &chain_actions::chain_up_result;
           req = was_close;
           return;
         }
@@ -143,7 +143,7 @@ namespace parser::detail {
         json_message_type::n_error,
         st.position.get()
       });
-      st.after_fn = &parser_state::action_unwind;
+      st.after_fn = &chain_actions::chain_unwind;
       resp.change_status(json_message_codes::n_map_unexpected_symbol);
     }
 

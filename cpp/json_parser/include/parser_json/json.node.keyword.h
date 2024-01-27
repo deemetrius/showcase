@@ -46,7 +46,7 @@ namespace parser::detail {
 
       // not match
       st.skip_read();
-      st.after_fn = &parser_state::action_up_result;
+      st.after_fn = &chain_actions::chain_up_result;
     }
     
     result_type get_result(parser_state & st, response_type & resp) override

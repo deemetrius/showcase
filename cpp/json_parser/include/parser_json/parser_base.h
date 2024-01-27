@@ -90,7 +90,9 @@ namespace parser::detail {
       static bool condition_false(Params const * params, Char ch)
       { return false; }
 
-      static ptr_node create_none(Maker * maker, Params const * params, pos_type start_pos, Data const & data)
+      static ptr_node create_none(
+        Maker * maker, Params const * params, pos_type start_pos, Data const & data
+      )
       { return std::make_unique<node_base>(start_pos); }
 
       using fn_name = decltype( &get_name );
@@ -117,6 +119,7 @@ namespace parser::detail {
 
     struct read_actions
     {
+    private:
       static bool try_read_next(read_actions & st, Char & ch)
       {
         if( st.reader->is_end() ) { return true; }
@@ -133,6 +136,7 @@ namespace parser::detail {
       using fn_type = decltype(&try_read_next);
 
       // props
+    public:
       reader_type reader;
       fn_type read_fn{ &try_read_next };
 
@@ -147,44 +151,39 @@ namespace parser::detail {
       }
     };
 
-    struct parser_state
-      : public read_actions
+    struct chain_actions
     {
-      using chain = std::list<ptr_node>;
-
-      // post actions
-
-      static void action_none(parser_state & st, response_type & resp)
+      static void chain_none(parser_state & st, response_type & resp)
       {}
 
-      static void action_up_result(parser_state & st, response_type & resp)
+      using action_type = decltype(&chain_none);
+
+      static void chain_up_result(parser_state & st, response_type & resp)
       {
-        st.after_fn = &parser_state::action_none;
+        st.after_fn = &chain_none;
         inner_result_up(st, resp);
       }
 
-      static void action_up_only(parser_state & st, response_type & resp)
+      static void chain_up_only(parser_state & st, response_type & resp)
       {
-        st.after_fn = &parser_state::action_none;
+        st.after_fn = &chain_none;
         st.nodes.pop_back();
       }
 
-      static void action_unwind(parser_state & st, response_type & resp)
+      static void chain_unwind(parser_state & st, response_type & resp)
       {
-        st.after_fn = &parser_state::action_none;
+        st.after_fn = &chain_none;
         while( st.nodes.empty() == false )
         {
           inner_result_up(st, resp);
         }
       }
 
-      static void action_exit(parser_state & st, response_type & resp)
+      static void chain_discard(parser_state & st, response_type & resp)
       {
-        st.after_fn = &parser_state::action_none;
+        st.after_fn = &chain_none;
         st.nodes.clear();
       }
-
-      using action_type = decltype( &action_none );
 
       static void inner_result_up(parser_state & st, response_type & resp)
       {
@@ -207,12 +206,36 @@ namespace parser::detail {
         }
       }
 
+      using chain = std::list<ptr_node>;
+
+      // props
+      action_type after_fn{ &chain_none };
+      chain nodes;
+
+      bool has_chain_action() const
+      {
+        return (after_fn != &chain_none);
+      }
+
+      bool empty() const
+      {
+        return nodes.empty();
+      }
+
+      void add_node(ptr_node node)
+      {
+        nodes.push_back(std::move(node));
+      }
+    };
+
+    struct parser_state
+      : public read_actions
+      , public chain_actions
+    {
       // props
       Params const * params{ nullptr };
       Maker * maker{ nullptr };
-      chain nodes;
       ksi::files::position_counter position;
-      action_type after_fn{ &action_none };
       Data data{};
 
       // ctor
@@ -229,15 +252,15 @@ namespace parser::detail {
 
       void parse(response_type & resp, Char ch)
       {
-        ptr_node & node = nodes.back();
+        ptr_node & node = this->nodes.back();
         node->parse(*this, resp, ch);
         if( this->is_recognized() )
         {
           position.recognized(ch);
         }
-        while( after_fn != &action_none )
+        while( this->has_chain_action() )
         {
-          after_fn(*this, resp);
+          this->after_fn(*this, resp);
         }
       }
 
@@ -261,19 +284,9 @@ namespace parser::detail {
 
       void when_done(response_type & resp)
       {
-        if( nodes.empty() ) { return; }
-        nodes.back()->input_ended(*this, resp);
-        action_unwind(*this, resp);
-      }
-
-      void add_node(ptr_node node)
-      {
-        nodes.push_back( std::move(node) );
-      }
-
-      bool empty() const
-      {
-        return nodes.empty();
+        if( this->nodes.empty() ) { return; }
+        this->nodes.back()->input_ended(*this, resp);
+        chain_actions::chain_unwind(*this, resp);
       }
     };
 

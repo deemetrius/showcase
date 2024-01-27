@@ -67,14 +67,14 @@ namespace parser::detail {
 
       if( count_tokens > 0 )
       {
-        st.after_fn = &parser_state::action_exit;
+        st.after_fn = &chain_actions::chain_discard;
         return;
       }
 
       choicer_type const * it = find_from_all(st.params, ch);
       if( it == nullptr )
       {
-        st.after_fn = &parser_state::action_exit;
+        st.after_fn = &chain_actions::chain_discard;
         resp.change_status(json_message_codes::n_top_unexpected_symbol);
         return;
       }
@@ -98,7 +98,7 @@ namespace parser::detail {
     void put_result(result_type result, parser_state & st, response_type & resp) override
     {
       resp.value = result;
-      st.after_fn = &parser_state::action_exit;
+      st.after_fn = &chain_actions::chain_discard;
     }
   };
 

@@ -71,7 +71,7 @@ namespace parser::detail {
           json_message_type::n_error,
           st.position.get()
         });
-        st.after_fn = &parser_state::action_unwind;
+        st.after_fn = &chain_actions::chain_unwind;
         resp.change_status(json_message_codes::n_comments_wrong_char);
         return;
       }
@@ -91,7 +91,7 @@ namespace parser::detail {
           json_message_type::n_error,
           st.position.get()
         });
-        st.after_fn = &parser_state::action_unwind;
+        st.after_fn = &chain_actions::chain_unwind;
         resp.change_status(json_message_codes::n_comments_wrong_char);
         return;
       }
@@ -101,7 +101,7 @@ namespace parser::detail {
         if( is_eq(ch, info::cr, info::lf) )
         {
           req = was_single_end;
-          st.after_fn = &parser_state::action_up_only;
+          st.after_fn = &chain_actions::chain_up_only;
           return;
         }
       }

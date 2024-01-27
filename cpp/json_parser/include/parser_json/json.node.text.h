@@ -48,7 +48,7 @@ namespace parser::detail {
         if( ch != info::quote_double )
         {
           st.skip_read();
-          st.after_fn = &parser_state::action_up_only;
+          st.after_fn = &chain_actions::chain_up_only;
         }
         return;
       }
@@ -98,7 +98,7 @@ namespace parser::detail {
 
       if( ch == info::quote_double )
       {
-        st.after_fn = &parser_state::action_up_result;
+        st.after_fn = &chain_actions::chain_up_result;
         return;
       }
 
