@@ -119,30 +119,31 @@ namespace parser::detail {
 
     struct read_actions
     {
-    private:
-      static bool try_read_next(read_actions & st, Char & ch)
+      static bool try_read_next(parser_state & st, Char & ch)
       {
         if( st.reader->is_end() ) { return true; }
         ch = st.reader->read_char();
         return false;
       }
 
-      static bool keep_current(read_actions & st, Char & ch)
+      static bool keep_current(parser_state & st, Char & ch)
       {
         st.read_fn = &try_read_next;
         return false;
       }
+    };
 
-      using fn_type = decltype(&try_read_next);
+    struct with_reader
+    {
+      using fn_type = decltype(&read_actions::try_read_next);
 
       // props
-    public:
       reader_type reader;
-      fn_type read_fn{ &try_read_next };
+      fn_type read_fn{ &read_actions::try_read_next };
 
       void skip_read()
       {
-        read_fn = &keep_current;
+        read_fn = &read_actions::keep_current;
       }
 
       bool is_recognized() const
@@ -155,8 +156,6 @@ namespace parser::detail {
     {
       static void chain_none(parser_state & st, response_type & resp)
       {}
-
-      using action_type = decltype(&chain_none);
 
       static void chain_up_result(parser_state & st, response_type & resp)
       {
@@ -205,16 +204,20 @@ namespace parser::detail {
           st.nodes.pop_back();
         }
       }
+    };
 
+    struct with_chain
+    {
+      using chain_action_type = decltype(&chain_actions::chain_none);
       using chain = std::list<ptr_node>;
 
       // props
-      action_type after_fn{ &chain_none };
+      chain_action_type after_fn{ &chain_actions::chain_none };
       chain nodes;
 
       bool has_chain_action() const
       {
-        return (after_fn != &chain_none);
+        return (after_fn != &chain_actions::chain_none);
       }
 
       bool empty() const
@@ -229,8 +232,8 @@ namespace parser::detail {
     };
 
     struct parser_state
-      : public read_actions
-      , public chain_actions
+      : public with_reader
+      , public with_chain
     {
       // props
       Params const * params{ nullptr };
@@ -243,7 +246,7 @@ namespace parser::detail {
       parser_state(
         Maker * p_maker, reader_type p_reader, Params const * h_params, Args_data ... args_data
       )
-        : read_actions{ std::move(p_reader) }
+        : with_reader{ std::move(p_reader) }
         , params{ h_params }
         , maker{ p_maker }
         , position{ h_params->tab_size }
