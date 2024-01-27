@@ -119,13 +119,13 @@ namespace ksi::files {
       using info = ksi::chars::info<Char>;
       switch( ch )
       {
-        case info::cr: 
+        case info::cr :
         { this->on_cr(); break; }
 
-        case info::lf:
+        case info::lf :
         { this->on_lf(); break; }
 
-        case info::tab:
+        case info::tab :
         { this->on_tab(); break; }
 
         default:
