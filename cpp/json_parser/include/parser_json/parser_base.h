@@ -26,7 +26,8 @@ namespace parser {
   {
     using position_type = ksi::files::position;
 
-    std::optional<Result> value;
+    // props
+    std::optional<Result> result;
     index_t status{0};
     position_type end_position{};
 
@@ -192,7 +193,7 @@ namespace parser::detail {
           st.nodes.pop_back();
           if( st.nodes.empty() )
           {
-            resp.value = result;
+            resp.result = result;
           }
           else
           {

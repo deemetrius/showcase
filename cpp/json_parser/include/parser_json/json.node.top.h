@@ -97,7 +97,7 @@ namespace parser::detail {
 
     void put_result(result_type result, parser_state & st, response_type & resp) override
     {
-      resp.value = result;
+      resp.result = result;
       st.after_fn = &chain_actions::chain_discard;
     }
   };
