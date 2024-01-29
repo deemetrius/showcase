@@ -64,15 +64,10 @@ namespace parser::detail {
           return;
         }
 
-        st.data.log->inform({
-          log_messages::template comments_wrong_char<
-            std::initializer_list<std::string>
-          >({ "t_divide"s }),
-          json_message_type::n_error,
-          st.position.get()
-        });
+        log_messages{ st.data.log, &resp, st.position.get() }.comments_wrong_char<>(
+          { "Divide"s }
+        );
         st.after_fn = &chain_actions::chain_unwind;
-        resp.change_status(json_message_codes::n_comments_wrong_char);
         return;
       }
 
@@ -84,15 +79,10 @@ namespace parser::detail {
           return;
         }
 
-        st.data.log->inform({
-          log_messages::template comments_wrong_char<
-            std::initializer_list<std::string>
-          >({ "t_divide"s }),
-          json_message_type::n_error,
-          st.position.get()
-        });
+        log_messages{ st.data.log, &resp, st.position.get() }.comments_wrong_char<>(
+          { "Divide"s }
+        );
         st.after_fn = &chain_actions::chain_unwind;
-        resp.change_status(json_message_codes::n_comments_wrong_char);
         return;
       }
 

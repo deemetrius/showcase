@@ -25,6 +25,7 @@ namespace parser {
   {
     struct number_params
     {
+      bool e_notation_lowercase_letter{ false };
       bool nan_from_dot_only{ false };
       bool infinity_from_dot_signed{ false };
     };
@@ -59,6 +60,7 @@ namespace parser::detail {
     using result_type = Maker::result_type;
     using pos_type = ksi::files::position;
     using path_type = typename Maker::path_type;
+    using log_pointer = json_log_pointer<Log_string>;
 
     static result_type make_null(Maker * maker, pos_type pos, path_type const & path)
     {
@@ -79,7 +81,7 @@ namespace parser::detail {
     using map_make_function = std::map<string, fn_make>;
 
     // props
-    json_log_pointer<Log_string> log{ nullptr };
+    log_pointer log{ nullptr };
     path_type path{};
     map_make_function const map_keywords{
       { conv_string{}("null"), &make_null },
@@ -104,7 +106,7 @@ namespace parser::detail {
     using parser_state = nest::parser_state;
     using chain_actions = nest::chain_actions;
     using log_conv_type = ksi::conv::string_cast::to<Log_string>;
-    using log_messages = json_messages<Log_string>;
+    using log_messages = json_messages<Log_string, result_type>;
     using path_type = typename Maker::path_type;
 
 

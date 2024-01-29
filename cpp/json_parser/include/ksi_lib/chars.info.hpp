@@ -20,6 +20,8 @@ namespace ksi::chars {
 
       , letter_a = 'a'
       , letter_b = 'b'
+      , letter_e = 'e'
+      , letter_E = 'E'
       , letter_f = 'f'
       , letter_n = 'n'
       , letter_r = 'r'
@@ -64,6 +66,8 @@ namespace ksi::chars {
 
       , letter_a = L'a'
       , letter_b = L'b'
+      , letter_e = L'e'
+      , letter_E = L'E'
       , letter_f = L'f'
       , letter_n = L'n'
       , letter_r = L'r'
